@@ -91,7 +91,7 @@ Methods:
 - [x] ArcFace
 - [ ] ArcFace - combined margin
 - [x] AdaFace
-- [ ] circle loss
+- [ ] Circle loss
 - [ ] MagFace
 
 Backbones:
