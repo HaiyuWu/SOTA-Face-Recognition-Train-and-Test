@@ -1,24 +1,22 @@
 #########################################################
 # https://github.com/vitoralbiero/face_analysis_pytorch
 #########################################################
-import os
 from os import path
-
+from collections import defaultdict
 import lmdb
 import msgpack
 import numpy as np
 import pandas as pd
-from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 from tqdm import tqdm
 
 
 class ImageListRaw(ImageFolder):
-    def __init__(self, image_list, labels):
+    def __init__(self, image_list):
         image_names = pd.read_csv(image_list, header=None)
         self.samples = np.asarray(image_names).squeeze()
-        self.targets = np.load(labels)
+        self.targets = self.get_labels()
         self.classnum = np.max(self.targets) + 1
 
     def __len__(self):
@@ -30,10 +28,20 @@ class ImageListRaw(ImageFolder):
 
         return img, self.targets[index]
 
+    def get_labels(self):
+        id_dict = defaultdict(int)
+        for im in tqdm(self.samples):
+            identity = im.split("/")[-2]
+            id_dict[identity] += 1
+        labels = []
+        for i, (k, value) in enumerate(id_dict.items()):
+            labels += [i] * value
+        return labels
+
 
 class CustomRawLoader(DataLoader):
-    def __init__(self, workers, image_list, labels):
-        self._dataset = ImageListRaw(image_list, labels)
+    def __init__(self, workers, image_list):
+        self._dataset = ImageListRaw(image_list)
 
         super(CustomRawLoader, self).__init__(
             self._dataset, num_workers=workers, collate_fn=lambda x: x
@@ -41,7 +49,6 @@ class CustomRawLoader(DataLoader):
 
 
 def list2lmdb(
-    labels,
     image_list,
     dest,
     file_name,
@@ -49,7 +56,7 @@ def list2lmdb(
     write_frequency=5000,
 ):
     print("Loading dataset from %s" % image_list)
-    data_loader = CustomRawLoader(num_workers, image_list, labels)
+    data_loader = CustomRawLoader(num_workers, image_list)
 
     name = f"{file_name}.lmdb"
     lmdb_path = path.join(dest, name)
@@ -105,15 +112,13 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--image_list", "-i", help="List of images.")
-    parser.add_argument("--labels", "-l", help="label file.")
     parser.add_argument("--workers", "-w", help="Workers number.", default=16, type=int)
-    parser.add_argument("--dest", "-d", help="Path to save the lmdb file.")
+    parser.add_argument("--destination", "-d", help="Path to save the lmdb file.")
     parser.add_argument("--file_name", "-n", help="lmdb file name.")
-    parser.add_argument("--write_frequency", "-wf", help="write frequency.", default=5000, type=int)
+    parser.add_argument("--write_frequency", "-wf", help="write frequency.", default=50000, type=int)
     args = parser.parse_args()
 
     list2lmdb(
-        args.labels,
         args.image_list,
         args.dest,
         args.file_name,

@@ -39,9 +39,9 @@ class Train:
 
         self.model = iresnet(self.config.depth)
 
-        # add m=self.config.margin to change margin
+        # add  to change margin
         self.head = self.config.recognition_head(
-            classnum=class_num
+            classnum=class_num, m=self.config.margin
         )
 
         self.full_model = ModelWrapper(self.model, self.head).to(self.config.device)
