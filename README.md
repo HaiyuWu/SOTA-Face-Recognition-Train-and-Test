@@ -105,6 +105,7 @@ Methods:
 
 Backbones:
 - [x] iresnet (18, 34, 50, 100, 152, 200) 
+- [ ] irse
 - [ ] vit
 
 Others:
