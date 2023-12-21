@@ -78,30 +78,30 @@ python3 arcface_test.py \
 
 ## TODO list
 Functions:
-- [] use .yaml to set up the configurations
-- [] train with vit
-- [] feature extraction script
-- [] test script
-- [] partial FC
-- [] distributed training
+- [ ] use .yaml to set up the configurations
+- [ ] train with vit
+- [ ] feature extraction script
+- [ ] test script
+- [ ] partial FC
+- [ ] distributed training
 
 Methods:
 - [x] CosFace
 - [x] SphereFace
 - [x] ArcFace
-- [] ArcFace - combined margin
+- [ ] ArcFace - combined margin
 - [x] AdaFace
-- [] circle loss
-- [] MagFace
+- [ ] circle loss
+- [ ] MagFace
 
 Backbones:
 - [x] iresnet (18, 34, 50, 100, 152, 200) 
-- [] vit
+- [ ] vit
 
 Others:
-- [] test on IJB-B, IJB-C, XQLFW
-- [] Published papers
-- [] references
+- [ ] test on IJB-B, IJB-C, XQLFW
+- [ ] Published papers
+- [ ] references
 
 ## License
 [MIT license](./license.md)
