@@ -8,6 +8,7 @@ This repository provides a neat package to train and test state-of-the-art face 
   * [Training sets](#training-sets)
   * [Test sets](#test-sets)
 - [Train your own model](#train-your-own-model)
+- [Test your own model](#test-your-own-model)
 - [Test SOTA models](#test-sota-models)
   * [Model Weights](#model-weights)
   * [Testing](#testing)
@@ -54,6 +55,14 @@ python3 train.py \
 --margin 0.5
 ```
 
+## Test your own model
+```
+python3 test.py \
+--model_path path/of/the/weights \
+--val_list lfw cfp_fp agedb_30 calfw cplfw \
+--val_source ../test_set_package_5
+```
+
 ## Test SOTA models
 Now, we support testing for ArcFace (CVPR19), CurricularFace(CVPR20), MagFace(CVPR21), AdaFace(CVPR22), and TransFace(ICCV23).
 ### Model Weights
@@ -78,10 +87,10 @@ python3 arcface_test.py \
 
 ## TODO list
 Functions:
+- [ ] resume from training
 - [ ] use .yaml to set up the configurations
 - [ ] train with vit
 - [ ] feature extraction script
-- [ ] test script
 - [ ] partial FC
 - [ ] distributed training
 
