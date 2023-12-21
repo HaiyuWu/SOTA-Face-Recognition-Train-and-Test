@@ -48,6 +48,7 @@ After finishing the training and testing sets preparation, you train your own mo
 python3 train.py \
 --train_source ./datasets/your_dataset.lmdb \
 --val_source ./test_set_package_5 \
+--val_list lfw cfp_fp agedb_30 calfw cplfw \
 --prefix task_name \
 --head arcface \
 --batch_size 512 \
@@ -60,8 +61,14 @@ python3 train.py \
 python3 test.py \
 --model_path path/of/the/weights \
 --val_list lfw cfp_fp agedb_30 calfw cplfw \
---val_source ../test_set_package_5
+--val_source ./test_set_package_5
 ```
+
+## Training results
+|              | Dataset |  LFW  | CFP-FP | CALFW | CPLFW | AgeDB-30 |
+|--------------|:-------:|:-----:|:------:|:-----:|:-----:|:--------:|
+| ArcFace-R100 | MS1MV2  | 99.78 | 98.24  | 96.03 | 93.22 |  97.95   |
+| AdaFace-R100 | MS1MV2  | 99.82 | 98.26  | 96.17 | 93.08 |  98.13   |
 
 ## Test SOTA models
 Now, we support testing for ArcFace (CVPR19), CurricularFace(CVPR20), MagFace(CVPR21), AdaFace(CVPR22), and TransFace(ICCV23).

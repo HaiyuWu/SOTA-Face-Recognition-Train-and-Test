@@ -2,11 +2,8 @@ import argparse
 from os import path
 import numpy as np
 import torch
-from tqdm import tqdm
-from sklearn.metrics import mean_absolute_error
-from torch import autograd, optim
+from torch import optim
 from torch.nn import DataParallel
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.tensorboard import SummaryWriter
 from config import Config
 from data.data_loader_train_lmdb import LMDBDataLoader
