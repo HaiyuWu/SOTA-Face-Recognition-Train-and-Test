@@ -67,8 +67,8 @@ python3 test.py \
 ## Training results
 |              | Dataset |  LFW  | CFP-FP | CALFW | CPLFW | AgeDB-30 |
 |--------------|:-------:|:-----:|:------:|:-----:|:-----:|:--------:|
-| ArcFace-R100 | MS1MV2  | 99.78 | 98.24  | 96.03 | 93.22 |  97.95   |
-| AdaFace-R100 | MS1MV2  | 99.82 | 98.26  | 96.17 | 93.08 |  98.13   |
+| ArcFace-R100 (m=0.5) | MS1MV2  | 99.78 | 98.24  | 96.03 | 93.22 |  97.95   |
+| AdaFace-R100 (m=0.4) | MS1MV2  | 99.82 | 98.26  | 96.17 | 93.08 |  98.13   |
 
 ## Test SOTA models
 Now, we support testing for ArcFace (CVPR19), CurricularFace(CVPR20), MagFace(CVPR21), AdaFace(CVPR22), and TransFace(ICCV23).
