@@ -1,3 +1,4 @@
+
 # SOTA-FR-train-and-test
 This repository provides a neat package to train and test state-of-the-art face recognition models.
 
@@ -19,12 +20,13 @@ This repository provides a neat package to train and test state-of-the-art face 
 ### Training sets
 #### Option 1
 You can directly download the compressed [MS1MV2](https://drive.google.com/file/d/10MaJjn3wvTcDCoXJdNmhMeAsRHfPuM-_/view?usp=drive_link)
-, [WebFace4M](https://drive.google.com/file/d/12C9GvOEDcfqKm5XI5Ta2XvRBqlSy29C9/view?usp=drive_link), and [Glint360K](https://drive.google.com/file/d/1WaLfIVJ7lQrwVgBOSp0BLNSUxLfFPccb/view?usp=drive_link).
+, [WebFace4M](https://drive.google.com/file/d/12C9GvOEDcfqKm5XI5Ta2XvRBqlSy29C9/view?usp=drive_link).
 Extract them at ***datasets*** folder and they are ready-to-use.
+
 #### Option 2
 All the other training sets could be found at [insightface](https://github.com/deepinsight/insightface/tree/master/recognition/_datasets_).
 After extracting the training set by using [rec2image.py](https://github.com/deepinsight/insightface/blob/0b5cab57b6011a587386bb14ac01ff2d74af1ff9/recognition/common/rec2image.py),
-using [file_path_extractor.py](https://github.com/HaiyuWu/useful_tools/blob/main/file_path_extractor.py) to gather the image paths of the training set. 
+using [file_path_extractor.py](https://github.com/HaiyuWu/useful_tools/blob/main/file_path_extractor.py) to gather the image paths of the training set.
 Then run [imagelist2lmdb.py](https://github.com/HaiyuWu/SOTA-FR-train-and-test/blob/main/utils/imagelist2lmdb.py) to finish the training set preparation.
 ```
 python3 utils/imagelist2lmdb.py \
@@ -111,7 +113,7 @@ Methods:
 - [ ] MagFace
 
 Backbones:
-- [x] iresnet (18, 34, 50, 100, 152, 200) 
+- [x] iresnet (18, 34, 50, 100, 152, 200)
 - [ ] irse
 - [ ] vit
 
