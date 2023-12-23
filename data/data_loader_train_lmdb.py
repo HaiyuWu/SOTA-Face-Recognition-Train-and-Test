@@ -54,31 +54,11 @@ class LMDB(Dataset):
 
         return img, target
 
-    def _get_label(self, index):
-        if self.mask is not None:
-            index = self.mask[index]
-        env = self.env
-        with env.begin(write=False) as txn:
-            byteflow = txn.get(self.keys[index])
-
-        unpacked = msgpack.loads(byteflow)
-        target = unpacked[1]
-
-        return target
-
     def __len__(self):
         if self.mask is None:
             return self.length
         else:
             return len(self.mask)
-
-    def get_targets(self):
-        targets = []
-        for idx in range(self.length):
-            target = self._get_label(idx)
-            targets.append(target)
-
-        return np.asarray(targets)
 
 
 class LMDBDataLoader(DataLoader):
