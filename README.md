@@ -79,7 +79,7 @@ Now, we support testing for ArcFace (CVPR19), CurricularFace(CVPR20), MagFace(CV
 - Download [weights](https://github.com/HuangYG123/CurricularFace?tab=readme-ov-file#model) for CurricularFace
 - Download [weights](https://github.com/IrvingMeng/MagFace?tab=readme-ov-file#model-zoo) for MagFace
 - Download [weights](https://github.com/mk-minchul/AdaFace?tab=readme-ov-file#pretrained-models) for AdaFace
-- Download [weights](https://github.com/DanJun6737/TransFace?tab=readme-ov-file#transface-pretrained-models) for TransFace (* **We only support testing ViT-L for now** *)
+- Download [weights](https://github.com/DanJun6737/TransFace?tab=readme-ov-file#transface-pretrained-models) for TransFace
 ### Testing
 Testing the pre-trained model (e.g. ArcFace-R100) on LFW, CFP-FP, CALFW, CPLFW, AgeDB-30 by
 ```

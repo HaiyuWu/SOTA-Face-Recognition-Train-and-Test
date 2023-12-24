@@ -303,6 +303,15 @@ class VisionTransformer(nn.Module):
         return x, weight, patch_entropy
 
 
+def get_vit(args):
+    if args.mode == "s":
+        return vit_s()
+    if args.mode == "b":
+        return vit_b()
+    if args.mode == "l":
+        return vit_l()
+
+
 def vit_s():
     return VisionTransformer(
         img_size=112, patch_size=9, num_classes=512, embed_dim=512, depth=12,

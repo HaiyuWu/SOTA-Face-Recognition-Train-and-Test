@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 from torch.nn import DataParallel
-from backbones.transface_vit import vit_l
+from backbones.transface_vit import get_vit
 import sys
 sys.path.append("..")
 from data.load_test_sets_recognition import get_val_pair
@@ -27,7 +27,7 @@ class Test:
             self.validation_list.append([dataset, issame, val_name])
 
     def create_model(self, args):
-        model = vit_l()
+        model = get_vit(args)
         model.load_state_dict(torch.load(args.model_path))
         return model
 
@@ -67,6 +67,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--model_path", "-model", help="model path.", type=str
+    )
+    parser.add_argument(
+        "--vit_mode", "-mode", help="ViT mode [s, b, l].", type=str, default="l"
     )
     parser.add_argument("--batch_size", "-b", help="Batch size.", default=512, type=int)
     parser.add_argument(
