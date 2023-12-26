@@ -194,7 +194,7 @@ class Train:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Train a race, gender, age or recognition models."
+        description="Train a recognition model."
     )
 
     # network and training parameters
@@ -210,7 +210,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--num_classes", "-nc", help="Number of classes.", default=85742, type=int
     )
-
     # training/validation configuration
     parser.add_argument("--train_list", "-t", help="List of images to train.")
     parser.add_argument(
@@ -218,12 +217,13 @@ if __name__ == "__main__":
         "-v",
         help="List of images to validate, or datasets to validate (recognition).",
         default=["lfw", "cfp_fp", "cplfw", "agedb_30", "calfw", "cfh", "cb"],
+        nargs="+"
     )
     parser.add_argument(
-        "--train_source", "-ts", help="Path to the train images, or dataset LMDB file."
+        "--train_source", "-ts", help="Path to the train dataset LMDB file."
     )
     parser.add_argument(
-        "--val_source", "-vs", help="Path to the val images, or dataset LMDB file."
+        "--val_source", "-vs", help="Path to the val images."
     )
     parser.add_argument(
         "--head",
