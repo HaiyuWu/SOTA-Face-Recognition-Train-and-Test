@@ -3,9 +3,10 @@ import datetime
 
 
 class TrainLogger(object):
-    def __init__(self, batch_size, frequency=50):
+    def __init__(self, batch_size, frequency, world_size):
         self.batch_size = batch_size
         self.frequency = frequency
+        self.world_size = world_size
         self.init = False
         self.tic = 0
         self.last_batch = 0
@@ -19,7 +20,7 @@ class TrainLogger(object):
         if self.init:
             self.running_loss += loss
             if batch % self.frequency == 0:
-                speed = self.frequency * self.batch_size / (time.time() - self.tic)
+                speed = self.world_size * self.frequency * self.batch_size / (time.time() - self.tic)
                 self.running_loss = self.running_loss / self.frequency
                 current_time = datetime.datetime.now().strftime("%d %H:%M")
                 log = (

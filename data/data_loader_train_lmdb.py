@@ -9,7 +9,7 @@ import queue as Queue
 import threading
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
-from .dist import DistributedSampler, get_dist_info, worker_init_fn
+from .dist import DistributedSampler, get_dist_info
 
 
 class LMDB(Dataset):
@@ -33,8 +33,6 @@ class LMDB(Dataset):
         if mask is not None:
             self.mask = np.load(mask)
 
-        # self.label_map = np.load("./manipulated_image_lists/ms1mv2/lfw/merge.npy", allow_pickle=True).item()
-
         self.transform = transform
 
     def __getitem__(self, index):
@@ -54,13 +52,6 @@ class LMDB(Dataset):
 
         # load label
         target = unpacked[1]
-        # try:
-        #     target = self.label_map[str(target)]
-        #     if target > 85742:
-        #         print(target)
-        #         exit()
-        # except KeyError:
-        #     pass
 
         if self.transform is not None:
             img = self.transform(img)
@@ -91,7 +82,7 @@ class LMDBDataLoader(object):
 
         # use DataLoaderX for faster loading
         self.loader = DataLoaderX(
-            local_rank=config.local_rank,
+            local_rank=rank,
             dataset=self._dataset,
             batch_size=config.batch_size,
             sampler=samplers,

@@ -39,7 +39,7 @@ class Train:
 
         self.dataset = LMDBDataLoader(
             config=self.config,
-            train=True,
+            train=True
         )
         self.train_loader = self.dataset.get_loader()
 
@@ -62,7 +62,7 @@ class Train:
 
         self.model = torch.nn.parallel.DistributedDataParallel(
             module=self.model, broadcast_buffers=False, device_ids=[local_rank], bucket_cap_mb=16,
-            find_unused_parameters=True
+            find_unused_parameters=False
         )
         self.model.register_comm_hook(None, fp16_compress_hook)
 
@@ -83,16 +83,17 @@ class Train:
             momentum=self.config.momentum,
         )
 
-        if self.config.val_source is not None:
-            self.validation_list = []
-            for val_name in config.val_list:
-                dataset, issame = get_val_pair(self.config.val_source, val_name)
-                self.validation_list.append([dataset, issame, val_name])
+        self.validation_list = []
+        for val_name in config.val_list:
+            if local_rank == 0:
+                print(f"Loading {val_name}...")
+            dataset, issame = get_val_pair(self.config.val_source, val_name)
+            self.validation_list.append([dataset, issame, val_name])
 
         self.save_file(self.config, "config.txt")
 
         self.save_file(self.optimizer, "optimizer.txt")
-        self.tensorboard_loss_every = 100
+        self.tensorboard_loss_every = 1000
 
     def run(self):
         self.model.train()
@@ -107,7 +108,7 @@ class Train:
             if isinstance(self.train_loader, DataLoader):
                 self.train_loader.sampler.set_epoch(epoch)
             train_logger = TrainLogger(
-                self.config.batch_size, self.config.frequency_log
+                self.config.batch_size, self.config.frequency_log, world_size
             )
 
             if epoch + 1 in self.config.reduce_lr:
@@ -218,7 +219,7 @@ class Train:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Train a race, gender, age or recognition models."
+        description="Train a recognition model."
     )
 
     # network and training parameters
@@ -230,7 +231,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--lr", "-lr", help="Learning rate.", default=0.1, type=float)
     parser.add_argument("--batch_size", "-b", help="Batch size.", default=512, type=int)
-    parser.add_argument("--workers", "-w", help="Workers number.", default=16, type=int)
+    parser.add_argument("--workers", "-w", help="Workers number.", default=2, type=int)
     parser.add_argument(
         "--num_classes", "-nc", help="Number of classes.", default=85742, type=int
     )
@@ -241,7 +242,7 @@ if __name__ == "__main__":
         "--val_list",
         "-v",
         help="List of images to validate, or datasets to validate (recognition).",
-        default=["lfw", "cfp_fp", "cplfw", "agedb_30", "calfw", "eclipse", "hadrian"],
+        default=["lfw", "cfp_fp", "cplfw", "agedb_30", "calfw", "eclipse", "hadrian", "mlfw", "sllfw"],
         nargs="+"
     )
     parser.add_argument(

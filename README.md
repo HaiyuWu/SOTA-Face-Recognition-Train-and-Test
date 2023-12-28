@@ -49,7 +49,7 @@ python3 utils/prepare_test_images.py \
 ## Train your own model
 After finishing the training and testing sets preparation, you train your own model by:
 ```
-python3 -m torch.distributed.launch train.py \
+torchrun train.py \
 --train_source ./datasets/your_dataset.lmdb \
 --val_source ./test_set_package_5 \
 --val_list lfw cfp_fp agedb_30 calfw cplfw \
