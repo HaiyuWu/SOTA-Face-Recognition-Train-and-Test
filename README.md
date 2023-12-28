@@ -10,6 +10,7 @@ This repository provides a neat package to efficiently train and test state-of-t
   * [Test sets](#test-sets)
 - [Train your own model](#train-your-own-model)
 - [Test your own model](#test-your-own-model)
+- [Feature extraction](#feature-extraction)
 - [Test SOTA models](#test-sota-models)
   * [Model Weights](#model-weights)
   * [Testing](#testing)
