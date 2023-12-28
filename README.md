@@ -21,7 +21,7 @@ This repository provides a neat package to efficiently train and test state-of-t
 ### Training sets
 #### Option 1
 You can directly download the compressed [MS1MV2](https://drive.google.com/file/d/10MaJjn3wvTcDCoXJdNmhMeAsRHfPuM-_/view?usp=drive_link)
-, [WebFace4M](https://drive.google.com/file/d/12C9GvOEDcfqKm5XI5Ta2XvRBqlSy29C9/view?usp=drive_link).
+, [WebFace4M](https://drive.google.com/file/d/12C9GvOEDcfqKm5XI5Ta2XvRBqlSy29C9/view?usp=drive_link), [Glint360K](https://drive.google.com/file/d/1WaLfIVJ7lQrwVgBOSp0BLNSUxLfFPccb/view?usp=drive_link).
 Extract them at ***datasets*** folder and they are ready-to-use.
 
 #### Option 2
