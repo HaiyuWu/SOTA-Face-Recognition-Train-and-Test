@@ -1,129 +1,139 @@
 import math
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.nn import Parameter
+
+
+class CombinedMarginLoss(nn.Module):
+    def __init__(self,
+                 s=64,
+                 m1=1.0,
+                 m2=0.0,
+                 m3=0.4,
+                 interclass_filtering_threshold=0):
+        super().__init__()
+        self.s = s
+        self.m1 = m1
+        self.m2 = m2
+        self.m3 = m3
+        self.interclass_filtering_threshold = interclass_filtering_threshold
+
+        # For ArcFace
+        self.cos_m = math.cos(self.m2)
+        self.sin_m = math.sin(self.m2)
+        self.theta = math.cos(math.pi - self.m2)
+        self.sinmm = math.sin(math.pi - self.m2) * self.m2
+        self.easy_margin = False
+
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+        index_positive = torch.where(labels != -1)[0]
+
+        if self.interclass_filtering_threshold > 0:
+            with torch.no_grad():
+                dirty = logits > self.interclass_filtering_threshold
+                dirty = dirty.float()
+                mask = torch.ones([index_positive.size(0), logits.size(1)], device=logits.device)
+                mask.scatter_(1, labels[index_positive], 0)
+                dirty[index_positive] *= mask
+                tensor_mul = 1 - dirty
+            logits = tensor_mul * logits
+
+        target_logit = logits[index_positive, labels[index_positive].view(-1)]
+
+        if self.m1 == 1.0 and self.m3 == 0.0:
+            with torch.no_grad():
+                target_logit.arccos_()
+                logits.arccos_()
+                final_target_logit = target_logit + self.m2
+                logits[index_positive, labels[index_positive].view(-1)] = final_target_logit
+                logits.cos_()
+            logits *= self.s
+
+        elif self.m3 > 0:
+            final_target_logit = target_logit - self.m3
+            logits[index_positive, labels[index_positive].view(-1)] = final_target_logit
+            logits *= self.s
+        else:
+            raise
+
+        return logits, None
 
 
 class ArcFace(nn.Module):
-    def __init__(self, classnum, num_features=512, s=64.0, m=0.50):
+    def __init__(self, s=64.0, margin=0.5):
         super(ArcFace, self).__init__()
-        self.num_features = num_features
-        self.n_classes = classnum
         self.s = s
-        self.m = m
-        self.W = Parameter(torch.FloatTensor(classnum, num_features))
-        nn.init.xavier_uniform_(self.W)
+        self.margin = margin
 
-    def forward(self, embeddings, label=None):
-        # normalize features
-        x = F.normalize(embeddings)
-        # normalize weights
-        W = F.normalize(self.W)
-        # cosine similarity of x, W
-        logits = F.linear(x, W)
-        if label is None:
-            return logits
-        # theta: distance between x an W
-        theta = torch.acos(torch.clamp(logits, -1.0 + 1e-7, 1.0 - 1e-7))
-        # Add margin to enlarge the distance
-        label_logits = torch.cos(theta + self.m)
-        #
-        one_hot = torch.zeros_like(logits)
-        one_hot.scatter_(1, label.view(-1, 1).long(), 1)
-        output = logits * (1 - one_hot) + label_logits * one_hot
-        # feature re-scale
-        output *= self.s
-
-        return output
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+        logits.clamp(-1.0 + 1e-7, 1.0 - 1e-7)
+        # index of the ground truth labels in the current batch
+        index = torch.where(labels != -1)[0]
+        # find the corresponding logit
+        target_logit = logits[index, labels[index].view(-1)]
+        with torch.no_grad():
+            # convert to theta
+            target_logit.arccos_()
+            logits.arccos_()
+            # add margin to target class
+            final_target_logit = target_logit + self.margin
+            # assign the added logit back to logits
+            logits[index, labels[index].view(-1)] = final_target_logit
+            # convert it back to cosine
+            logits.cos_()
+        # scale with pre-set value
+        logits *= self.s
+        return logits, None
 
 
 class SphereFace(nn.Module):
-    def __init__(self, classnum, num_features=512, s=64.0, m=1.35):
+    def __init__(self, s=64.0, margin=1.7):
         super(SphereFace, self).__init__()
-        self.num_features = num_features
-        self.n_classes = classnum
         self.s = s
-        self.m = m
-        self.W = Parameter(torch.FloatTensor(classnum, num_features))
-        nn.init.xavier_uniform_(self.W)
+        self.margin = margin
 
-    def forward(self, embeddings, label=None):
-        # normalize features
-        x = F.normalize(embeddings)
-        # normalize weights
-        W = F.normalize(self.W)
-        # dot product
-        logits = F.linear(x, W)
-        if label is None:
-            return logits
-        # add margin
-        theta = torch.acos(torch.clamp(logits, -1.0 + 1e-7, 1.0 - 1e-7))
-        label_logits = torch.cos(self.m * theta)
-        one_hot = torch.zeros_like(logits)
-        one_hot.scatter_(1, label.view(-1, 1).long(), 1)
-        output = logits * (1 - one_hot) + label_logits * one_hot
-        # feature re-scale
-        output *= self.s
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+        logits.clamp(-1.0 + 1e-7, 1.0 - 1e-7)
+        index = torch.where(labels != -1)[0]
+        target_logit = logits[index, labels[index].view(-1)]
+        with torch.no_grad():
+            target_logit.arccos_()
+            logits.arccos_()
+            # sphereface multiply
+            final_target_logit = target_logit * self.margin
+            logits[index, labels[index].view(-1)] = final_target_logit
+            logits.cos_()
+        logits *= self.s
 
-        return output
+        return logits, None
 
 
 class CosFace(nn.Module):
-    def __init__(self, classnum, num_features=512, s=64.0, m=0.35):
+    def __init__(self, s=64.0, margin=0.4):
         super(CosFace, self).__init__()
-        self.num_features = num_features
-        self.n_classes = classnum
         self.s = s
-        self.m = m
-        self.W = Parameter(torch.FloatTensor(classnum, num_features))
-        nn.init.xavier_uniform_(self.W)
+        self.margin = margin
 
-    def forward(self, embeddings, label=None):
-        # normalize features
-        x = F.normalize(embeddings)
-        # normalize weights
-        W = F.normalize(self.W)
-        # dot product
-        logits = F.linear(x, W)
-        if label is None:
-            return logits
-        # add margin
-        label_logits = logits - self.m
-        one_hot = torch.zeros_like(logits)
-        one_hot.scatter_(1, label.view(-1, 1).long(), 1)
-        output = logits * (1 - one_hot) + label_logits * one_hot
-        # feature re-scale
-        output *= self.s
-
-        return output
-
-
-##############
-#   AdaFace  #
-##############
-def l2_norm(embeddings,axis=1):
-    norm = torch.norm(embeddings,2,axis,True)
-    output = torch.div(embeddings, norm)
-    return output
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+        logits.clamp(-1.0 + 1e-7, 1.0 - 1e-7)
+        index = torch.where(labels != -1)[0]
+        target_logit = logits[index, labels[index].view(-1)]
+        with torch.no_grad():
+            # cosface
+            final_target_logit = target_logit - self.margin
+            logits[index, labels[index].view(-1)] = final_target_logit
+        logits *= self.s
+        return logits, None
 
 
 class AdaFace(nn.Module):
     def __init__(self,
-                 classnum,
-                 num_features=512,
-                 m=0.4,
+                 margin=0.4,
                  h=0.333,
                  s=64.,
                  t_alpha=1.0,
                  ):
         super(AdaFace, self).__init__()
-        self.classnum = classnum
-        self.kernel = Parameter(torch.Tensor(num_features, classnum))
-
-        # initial kernel
-        self.kernel.data.uniform_(-1, 1).renorm_(2,1,1e-5).mul_(1e5)
-        self.m = m
+        self.margin = margin
         self.eps = 1e-3
         self.h = h
         self.s = s
@@ -134,56 +144,81 @@ class AdaFace(nn.Module):
         self.register_buffer('batch_mean', torch.ones(1)*(20))
         self.register_buffer('batch_std', torch.ones(1)*100)
 
-    def forward(self, embeddings, label=None):
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+        index = torch.where(labels != -1)[0]
+        cosine = logits.clamp(-1+self.eps, 1-self.eps)
+        target_logit = cosine[index, labels[index].view(-1)]
+
         norms = torch.norm(embeddings, 2, 1, True)
-        embeddings = torch.div(embeddings, norms)
-
-        kernel_norm = l2_norm(self.kernel, axis=0)
-        cosine = torch.mm(embeddings, kernel_norm)
-        if label is None:
-            return cosine
-        cosine = cosine.clamp(-1+self.eps, 1-self.eps) # for stability
-
-        safe_norms = torch.clip(norms, min=0.001, max=100) # for stability
-        safe_norms = safe_norms.clone().detach()
+        safe_norms = torch.clip(norms, min=0.001, max=100)
+        safe_norms = safe_norms[index].clone().detach()
 
         # update batchmean batchstd
         with torch.no_grad():
             mean = safe_norms.mean().detach()
             std = safe_norms.std().detach()
             self.batch_mean = mean * self.t_alpha + (1 - self.t_alpha) * self.batch_mean
-            self.batch_std =  std * self.t_alpha + (1 - self.t_alpha) * self.batch_std
+            self.batch_std = std * self.t_alpha + (1 - self.t_alpha) * self.batch_std
 
         margin_scaler = (safe_norms - self.batch_mean) / (self.batch_std+self.eps) # 66% between -1, 1
         margin_scaler = margin_scaler * self.h # 68% between -0.333 ,0.333 when h:0.333
-        margin_scaler = torch.clip(margin_scaler, -1, 1)
+        margin_scaler = torch.clip(margin_scaler, -1, 1).view(-1)
 
         # g_angular
-        m_arc = torch.zeros(label.size()[0], cosine.size()[1], device=cosine.device)
-        m_arc.scatter_(1, label.reshape(-1, 1), 1.0)
-        g_angular = self.m * margin_scaler * -1
-        m_arc = m_arc * g_angular
-        theta = cosine.acos()
-        theta_m = torch.clip(theta + m_arc, min=self.eps, max=math.pi-self.eps)
+        m_arc = target_logit.arccos_()
+        g_angular = self.margin * margin_scaler * -1
+        theta = cosine.arccos_()
+        theta[index, labels[index].view(-1)] = m_arc * (1 + g_angular)
+        theta_m = torch.clip(theta, min=self.eps, max=math.pi-self.eps)
         cosine = theta_m.cos()
-
         # g_additive
-        m_cos = torch.zeros(label.size()[0], cosine.size()[1], device=cosine.device)
-        m_cos.scatter_(1, label.reshape(-1, 1), 1.0)
-        g_add = self.m + (self.m * margin_scaler)
-        m_cos = m_cos * g_add
-        cosine = cosine - m_cos
-
+        g_add = self.margin + (self.margin * margin_scaler)
+        cosine[index, labels[index].view(-1)] = cosine[index, labels[index].view(-1)] - g_add
         # scale
         scaled_cosine_m = cosine * self.s
-        return scaled_cosine_m
+        return scaled_cosine_m, None
+
+
+class MagFace(nn.Module):
+    def __init__(self, s=64.0, l_a=10, u_a=110, l_margin=0.45, u_margin=0.8):
+        super(MagFace, self).__init__()
+        self.s = s
+        self.l_margin = l_margin
+        self.u_margin = u_margin
+        self.l_a = l_a
+        self.u_a = u_a
+
+    def _margin(self, x):
+        margin = (self.u_margin - self.l_margin) / \
+                 (self.u_a - self.l_a) * (x - self.l_a) + self.l_margin
+        return margin
+
+    def calc_loss_G(self, x_norm):
+        g = 1 / (self.u_a ** 2) * x_norm + 1 / (x_norm)
+        return torch.mean(g)
+
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+        index = torch.where(labels != -1)[0]
+        target_logit = logits[index, labels[index].view(-1)]
+
+        x_norm = torch.norm(embeddings, dim=1, keepdim=True).clamp(self.l_a, self.u_a)[index]
+
+        ada_margin = self._margin(x_norm)
+        cos_m, sin_m = torch.cos(ada_margin).view(-1), torch.sin(ada_margin).view(-1)
+
+        sin_theta = torch.sqrt(1.0 - torch.pow(target_logit, 2))
+        # add margin
+        logits[index, labels[index].view(-1)] = target_logit * cos_m - sin_theta * sin_m
+        loss_g = self.calc_loss_G(x_norm)
+        logits *= self.s
+
+        return logits, loss_g
 
 
 ###############
 # Circle Loss #
 ###############
-def convert_label_to_similarity(feature, label):
-    normed_feature = F.normalize(feature)
+def convert_label_to_similarity(normed_feature, label):
     similarity_matrix = normed_feature @ normed_feature.transpose(1, 0)
     label_matrix = label.unsqueeze(1) == label.unsqueeze(0)
 
@@ -197,15 +232,13 @@ def convert_label_to_similarity(feature, label):
 
 
 class CircleLoss(nn.Module):
-    def __init__(self, classnum, m=0.25, gamma=256) -> None:
+    def __init__(self, m=0.25, gamma=256) -> None:
         super(CircleLoss, self).__init__()
         self.m = m
         self.gamma = gamma
 
-    def forward(self, embeddings, label=None):
-        if label is None:
-            return embeddings
-        sp, sn = convert_label_to_similarity(embeddings, label)
+    def forward(self, logits: torch.Tensor, label: torch.Tensor, norms: torch.Tensor):
+        sp, sn = convert_label_to_similarity(norms, label)
         ap = torch.clamp_min(- sp.detach() + 1 + self.m, min=0.)
         an = torch.clamp_min(sn.detach() + self.m, min=0.)
 

@@ -1,6 +1,6 @@
 
 # SOTA-FR-train-and-test
-This repository provides a neat package to train and test state-of-the-art face recognition models.
+This repository provides a neat package to efficiently train and test state-of-the-art face recognition models. 
 
 ## Table of contents
 
@@ -47,7 +47,7 @@ python3 utils/prepare_test_images.py \
 ## Train your own model
 After finishing the training and testing sets preparation, you train your own model by:
 ```
-python3 train.py \
+python3 -m torch.distributed.launch train.py \
 --train_source ./datasets/your_dataset.lmdb \
 --val_source ./test_set_package_5 \
 --val_list lfw cfp_fp agedb_30 calfw cplfw \
@@ -64,6 +64,16 @@ python3 test.py \
 --model_path path/of/the/weights \
 --val_list lfw cfp_fp agedb_30 calfw cplfw \
 --val_source ./test_set_package_5
+```
+
+## Feature extraction
+Using [file_path_extractor.py](https://github.com/HaiyuWu/useful_tools/blob/main/file_path_extractor.py) to collect the paths of the target images, then run following command to extract the features.
+```
+python3 feature_extractor.py \
+--model_path path/of/the/weights \
+--depth 100 \
+--image_paths image/path/file \
+--destination feature/destination
 ```
 
 ## Training results
@@ -95,23 +105,26 @@ python3 arcface_test.py \
 --val_source ../test_set_package_5
 ```
 
+### Acknowledgement
+Thanks for the valuable contribution of [InsightFace](https://github.com/deepinsight/insightface/tree/master) in face area!
+
 ## TODO list
 Functions:
 - [ ] resume from training
 - [ ] use .yaml to set up the configurations
 - [ ] train with vit
-- [ ] feature extraction script
-- [ ] partial FC
-- [ ] distributed training
+- [x] feature extraction script
+- [x] partial FC
+- [x] distributed training
 
 Methods:
 - [x] CosFace
 - [x] SphereFace
 - [x] ArcFace
-- [ ] ArcFace - combined margin
+- [x] ArcFace - combined margin
 - [x] AdaFace
 - [ ] Circle loss
-- [ ] MagFace
+- [x] MagFace
 
 Backbones:
 - [x] iresnet (18, 34, 50, 100, 152, 200)

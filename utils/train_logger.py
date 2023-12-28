@@ -1,4 +1,5 @@
 import time
+import datetime
 
 
 class TrainLogger(object):
@@ -20,9 +21,9 @@ class TrainLogger(object):
             if batch % self.frequency == 0:
                 speed = self.frequency * self.batch_size / (time.time() - self.tic)
                 self.running_loss = self.running_loss / self.frequency
-
+                current_time = datetime.datetime.now().strftime("%d %H:%M")
                 log = (
-                    f"Epoch: [{epoch + 1}-{total_epochs}] Batch: [{batch}-{total}] "
+                    f"Time: {current_time} Epoch: [{epoch + 1}-{total_epochs}] Batch: [{batch}-{total}] "
                     + f"Speed: {speed:.2f} samples/sec Loss: {self.running_loss:.5f}"
                 )
                 print(log)
