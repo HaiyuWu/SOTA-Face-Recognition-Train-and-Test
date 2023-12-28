@@ -14,6 +14,7 @@ This repository provides a neat package to efficiently train and test state-of-t
 - [Test SOTA models](#test-sota-models)
   * [Model Weights](#model-weights)
   * [Testing](#testing)
+- [Acknowledgement](#acknowledgement)
 - [License](#license)
   <!--te-->
 
@@ -133,7 +134,7 @@ Backbones:
 - [ ] vit
 
 Others:
-- [ ] test on IJB-B, IJB-C, XQLFW
+- [ ] test on IJB-B, IJB-C, XQLFW, SLLFW, MLFW, TALFW, DoppelVer
 - [ ] Published papers
 - [ ] references
 
