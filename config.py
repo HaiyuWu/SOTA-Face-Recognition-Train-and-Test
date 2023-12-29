@@ -35,7 +35,6 @@ class Config(EasyDict):
         self.train_source = args.train_source
         self.val_list = args.val_list
         self.val_source = args.val_source
-        self.output_type = torch.long
         self.recognition_head = self.RECOGNITION_HEAD[self.head]
         self.margin = args.margin
         self.fp16 = args.fp16
