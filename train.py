@@ -227,7 +227,7 @@ if __name__ == "__main__":
         "--epochs", "-e", help="Number of epochs.", default=20, type=int
     )
     parser.add_argument(
-        "--depth", "-d", help="Number of layers [50, 100, 152].", default="100", type=str
+        "--depth", "-d", help="Number of layers [18, 34, 50, 100, 152, 200].", default="100", type=str
     )
     parser.add_argument("--lr", "-lr", help="Learning rate.", default=0.1, type=float)
     parser.add_argument("--batch_size", "-b", help="Batch size.", default=512, type=int)

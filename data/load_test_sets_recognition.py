@@ -1,5 +1,4 @@
 from os import path
-import bcolz
 import numpy as np
 
 
