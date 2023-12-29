@@ -18,6 +18,17 @@ This repository provides a neat package to efficiently train and test state-of-t
 - [License](#license)
   <!--te-->
 
+## Environment
+I suggest to use Anaconda to better control the environments
+```
+conda create -n fr_training python=3.8
+conda activate fr_training
+```
+Then use pip to install the dependencies
+```
+pip install -r requirements.txt
+```
+
 ## Dataset preparation
 ### Training sets
 #### Option 1
