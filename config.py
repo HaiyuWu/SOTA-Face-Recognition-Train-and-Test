@@ -46,9 +46,6 @@ class Config(EasyDict):
         self.work_path = path.join("./workspace/", self.prefix)
         self.model_path = path.join(self.work_path, "models")
         self.log_path = path.join(self.work_path, "log")
-        if args.local_rank == -1 or args.local_rank == 0:
-            self.create_path(self.model_path)
-            self.create_path(self.log_path)
 
     def create_path(self, file_path):
         if not path.exists(file_path):

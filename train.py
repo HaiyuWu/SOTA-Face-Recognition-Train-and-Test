@@ -35,6 +35,10 @@ class Train:
         self.config = config
         assert self.config.head != "circleloss", "Please use 'train_with_circlelosss.py'."
 
+        if local_rank == 0:
+            self.config.create_path(self.config.model_path)
+            self.config.create_path(self.config.log_path)
+
         torch.cuda.set_device(local_rank)
 
         self.dataset = LMDBDataLoader(
