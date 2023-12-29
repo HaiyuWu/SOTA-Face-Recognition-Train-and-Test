@@ -33,8 +33,6 @@ class LMDB(Dataset):
         if mask is not None:
             self.mask = np.load(mask)
 
-        self.label_map = np.load("./manipulated_image_lists/ms1mv2/lfw/merge.npy", allow_pickle=True).item()
-
         self.transform = transform
 
     def __getitem__(self, index):
@@ -54,10 +52,6 @@ class LMDB(Dataset):
 
         # load label
         target = unpacked[1]
-        try:
-            target = self.label_map[str(target)]
-        except KeyError:
-            pass
 
         if self.transform is not None:
             img = self.transform(img)
