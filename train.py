@@ -230,10 +230,6 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", "-b", help="Batch size.", default=512, type=int)
     parser.add_argument("--workers", "-w", help="Workers number.", default=2, type=int)
     parser.add_argument(
-        "--num_classes", "-nc", help="Number of classes.", default=85742, type=int
-    )
-
-    parser.add_argument(
         "--val_list",
         "-v",
         help="List of datasets to validate.",
