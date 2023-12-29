@@ -19,7 +19,7 @@ This repository provides a neat package to efficiently train and test state-of-t
   <!--te-->
 
 ## Environment
-I suggest to use Anaconda to better control the environments
+I suggest you to use Anaconda to better control the environments
 ```
 conda create -n fr_training python=3.8
 conda activate fr_training
