@@ -47,7 +47,8 @@ class Train:
 
         self.model = iresnet(self.config.depth, fp16=self.config.fp16).to(local_rank)
 
-        # add m=self.config.margin to change margin
+        # add margin=self.config.margin to change margin
+        # currently using the default settings
         self.head = self.config.recognition_head()
 
         paras_only_bn, paras_wo_bn = separate_bn_param(self.model)
@@ -241,20 +242,20 @@ if __name__ == "__main__":
     parser.add_argument(
         "--val_list",
         "-v",
-        help="List of images to validate, or datasets to validate (recognition).",
+        help="List of datasets to validate.",
         default=["lfw", "cfp_fp", "cplfw", "agedb_30", "calfw", "eclipse", "hadrian", "mlfw", "sllfw"],
         nargs="+"
     )
     parser.add_argument(
-        "--train_source", "-ts", help="Path to the train images, or dataset LMDB file."
+        "--train_source", "-ts", help="Path to the dataset LMDB file."
     )
     parser.add_argument(
-        "--val_source", "-vs", help="Path to the val images.", default="./test_sets"
+        "--val_source", "-vs", help="Path to the val folder.", default="./test_sets"
     )
     parser.add_argument(
         "--head",
         "-hd",
-        help="If recognition, which head to use [arcface, cosface, adaface, sphereface].",
+        help="recognition methods: [arcface, cosface, adaface, sphereface, combined, magface].",
         type=str,
     )
     parser.add_argument("--margin", "-margin", help="Margin", default=0.5, type=float)
