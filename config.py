@@ -32,7 +32,6 @@ class Config(EasyDict):
         self.epochs = args.epochs
         self.reduce_lr = [8, 12, 14]
         self.workers = args.workers
-        self.train_list = args.train_list
         self.train_source = args.train_source
         self.val_list = args.val_list
         self.val_source = args.val_source
