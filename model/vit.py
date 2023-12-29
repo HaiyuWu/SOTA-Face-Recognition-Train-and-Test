@@ -56,8 +56,12 @@ class Attention(nn.Module):
         with torch.cuda.amp.autocast(True):
             batch_size, num_token, embed_dim = x.shape
             # qkv is [3,batch_size,num_heads,num_token, embed_dim//num_heads]
-            qkv = self.qkv(x).reshape(
-                batch_size, num_token, 3, self.num_heads, embed_dim // self.num_heads).permute(2, 0, 3, 1, 4)
+            qkv = self.qkv(x).reshape(batch_size,
+                                      num_token,
+                                      3,
+                                      self.num_heads,
+                                      torch.div(embed_dim, self.num_heads, rounding_mode='floor')
+                                      ).permute(2, 0, 3, 1, 4)
         with torch.cuda.amp.autocast(False):
             q, k, v = qkv[0].float(), qkv[1].float(), qkv[2].float()
             attn = (q @ k.transpose(-2, -1)) * self.scale
@@ -125,11 +129,7 @@ class PatchEmbed(nn.Module):
                               kernel_size=patch_size, stride=patch_size)
 
     def forward(self, x):
-        batch_size, channels, height, width = x.shape
-        assert height == self.img_size[0] and width == self.img_size[1], \
-            f"Input image size ({height}*{width}) doesn't match model ({self.img_size[0]}*{self.img_size[1]})."
         x = self.proj(x).flatten(2).transpose(1, 2)
-
         return x
 
 
@@ -207,14 +207,6 @@ class VisionTransformer(nn.Module):
         # trunc_normal_(self.cls_token, std=.02)
         self.apply(self._init_weights)
 
-        ## SEModule FC
-        self.senet = nn.Sequential(
-            nn.Linear(in_features=embed_dim * num_patches, out_features=num_patches, bias=False),
-            nn.ReLU(inplace=True),
-            nn.Linear(in_features=num_patches, out_features=num_patches, bias=False),
-            nn.Sigmoid()
-        )
-
     def _init_weights(self, m):
         if isinstance(m, nn.Linear):
             trunc_normal_(m.weight, std=.02)
@@ -282,32 +274,20 @@ class VisionTransformer(nn.Module):
             x_ = torch.cat([x[:, :, :], mask_tokens], dim=1)  # no cls token
             x_ = torch.gather(x_, dim=1, index=ids_restore.unsqueeze(-1).repeat(1, 1, x.shape[2]))  # unshuffle
             x = x_
-
-        orginal = x
-        out = torch.reshape(x, (B, self.num_patches * self.embed_dim))
-        out = self.senet(out)
-        out_softmax = out.softmax(dim=1)
-        out = torch.reshape(out, (B, self.num_patches, 1))
-        out = out * orginal
-        return torch.reshape(out, (B, self.num_patches * self.embed_dim)), out_softmax
+        return torch.reshape(x, (B, self.num_patches * self.embed_dim))
 
     def forward(self, x):
-        x, weight = self.forward_features(x)
-        out_x = torch.reshape(x, (x.shape[0], self.num_patches, self.embed_dim))
-        # for numerical stability
-        patch_std = torch.std(out_x, dim=2)
-        # patch_entropy = torch.log(patch_std) + 0.5 + 0.5*torch.log( torch.tensor(2*math.pi) )  ## Entropy
-        patch_entropy = patch_std
+        x = self.forward_features(x)
         x = self.feature(x)
-        return x, weight, patch_entropy
+        return x
 
 
-def get_vit(args):
-    if args.mode == "s":
+def get_vit(arch):
+    if arch == "s":
         return vit_s()
-    if args.mode == "b":
+    if arch == "b":
         return vit_b()
-    if args.mode == "l":
+    if arch == "l":
         return vit_l()
 
 

@@ -4,12 +4,12 @@ import numpy as np
 import torch
 from torch import optim, distributed
 from torch.utils.data import DataLoader
+# from lr_scheduler import PolynomialLRWarmup
 from torch.utils.tensorboard import SummaryWriter
-from config import Config
 from data import LMDBDataLoader, get_val_pair, setup_seed
-from model import iresnet, PartialFC_V2
+from model import iresnet, PartialFC_V2, get_vit
 import verification
-from utils import save_state, TrainLogger, separate_bn_param
+from utils import save_state, TrainLogger, separate_bn_param, create_path, get_config
 from torch.distributed.algorithms.ddp_comm_hooks.default_hooks import fp16_compress_hook
 
 
@@ -36,8 +36,8 @@ class Train:
         assert self.config.head != "circleloss", "Please use 'train_with_circlelosss.py'."
 
         if local_rank == 0:
-            self.config.create_path(self.config.model_path)
-            self.config.create_path(self.config.log_path)
+            create_path(self.config.model_path)
+            create_path(self.config.log_path)
 
         torch.cuda.set_device(local_rank)
 
@@ -46,15 +46,13 @@ class Train:
             train=True
         )
         self.train_loader = self.dataset.get_loader()
-
         class_num = self.dataset.class_num()
+        if self.config.model == "iresnet":
+            self.model = iresnet(self.config.depth, fp16=self.config.fp16).to(local_rank)
+        elif self.config.model == "vit":
+            self.model = get_vit(self.config.depth).to(local_rank)
 
-        self.model = iresnet(self.config.depth, fp16=self.config.fp16).to(local_rank)
-
-        # add margin=self.config.margin to change margin
-        # currently using the default settings
-        self.head = self.config.recognition_head()
-
+        self.head = self.config.recognition_head
         paras_only_bn, paras_wo_bn = separate_bn_param(self.model)
 
         # only write at main process
@@ -66,10 +64,11 @@ class Train:
             self.writer = None
 
         self.model = torch.nn.parallel.DistributedDataParallel(
-            module=self.model, broadcast_buffers=False, device_ids=[local_rank], bucket_cap_mb=16,
-            find_unused_parameters=False
+            module=self.model, broadcast_buffers=False, device_ids=[local_rank], bucket_cap_mb=16
         )
         self.model.register_comm_hook(None, fp16_compress_hook)
+        # for using checkpoint
+        self.model._set_static_graph()
 
         self.head = PartialFC_V2(
             self.head, self.config.embedding_size, class_num, self.config.sample_rate, self.config.fp16
@@ -218,48 +217,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Train a recognition model."
     )
-
-    # network and training parameters
     parser.add_argument(
-        "--epochs", "-e", help="Number of epochs.", default=20, type=int
+        "--config_file", "-config", help="path of config file.", default="./configs/base.py", type=str
     )
-    parser.add_argument(
-        "--depth", "-d", help="Number of layers [18, 34, 50, 100, 152, 200].", default="100", type=str
-    )
-    parser.add_argument("--lr", "-lr", help="Learning rate.", default=0.1, type=float)
-    parser.add_argument("--batch_size", "-b", help="Batch size.", default=512, type=int)
-    parser.add_argument("--workers", "-w", help="Workers number.", default=2, type=int)
-    parser.add_argument(
-        "--val_list",
-        "-v",
-        help="List of datasets to validate.",
-        default=["lfw", "cfp_fp", "cplfw", "agedb_30", "calfw", "eclipse", "hadrian", "mlfw", "sllfw"],
-        nargs="+"
-    )
-    parser.add_argument(
-        "--train_source", "-ts", help="Path to the dataset LMDB file."
-    )
-    parser.add_argument(
-        "--val_source", "-vs", help="Path to the val folder.", default="./test_sets"
-    )
-    parser.add_argument(
-        "--head",
-        "-hd",
-        help="recognition methods: [arcface, cosface, adaface, sphereface, combined, magface].",
-        type=str,
-    )
-    parser.add_argument("--margin", "-margin", help="Margin", default=0.5, type=float)
-    parser.add_argument("--sample_rate", "-rate", help="sample rate", default=1.0, type=float)
-    parser.add_argument("--prefix", "-p", help="Prefix to save the model.", type=str)
-    parser.add_argument(
-        "--mask", "-mask", help="selected image mask.", default=None
-    )
-    parser.add_argument("--fp16", "-fp16", help="fp16 for fc", action="store_true")
     args = parser.parse_args()
-
-    config = Config(args)
-
+    config = get_config(args.config_file)
     setup_seed(seed=42, cuda_deterministic=False)
-
     train = Train(config)
     train.run()

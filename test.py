@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 import torch
 from torch.nn import DataParallel
-from model.iresnet import iresnet
+from model import iresnet, PartialFC_V2, get_vit
 from data.load_test_sets_recognition import get_val_pair
 import verification
 
@@ -22,7 +22,10 @@ class Test:
             self.validation_list.append([dataset, issame, val_name])
 
     def create_model(self, args):
-        model = iresnet(args.depth)
+        if args.model == "iresnet":
+            model = iresnet(args.depth)
+        elif args.model == "vit":
+            model = get_vit(args.depth)
         model.load_state_dict(torch.load(args.model_path))
         return model
 
@@ -61,10 +64,16 @@ if __name__ == "__main__":
         description="test a recognition model."
     )
     parser.add_argument(
-        "--model_path", "-model", help="model path.", type=str
+        "--model_path", "-model_path", help="model path.", type=str
     )
     parser.add_argument(
-        "--depth", "-d", help="Number of layers [18, 34, 50, 100, 152, 200].", default="100", type=str
+        "--model", "-model", help="iresnet/vit.", type=str, default="iresnet"
+    )
+    parser.add_argument(
+        "--depth", "-d",
+        help="layers size: resnet [18, 34, 50, 100, 152, 200] / vit [s, b, l].",
+        default="100",
+        type=str
     )
     parser.add_argument("--batch_size", "-b", help="Batch size.", default=512, type=int)
     parser.add_argument(

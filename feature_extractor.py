@@ -3,8 +3,7 @@ import numpy as np
 import torch
 from os import path, makedirs
 from torch.nn import DataParallel
-from model.iresnet import iresnet
-import cv2
+from model import iresnet, PartialFC_V2, get_vit
 from data import TestDataLoader
 from tqdm import tqdm
 
@@ -20,7 +19,10 @@ class Extractor(object):
             self.model = self.model.to(self.device)
 
     def create_model(self, args):
-        model = iresnet(args.depth)
+        if args.model == "iresnet":
+            model = iresnet(args.depth)
+        elif args.model == "vit":
+            model = get_vit(args.depth)
         model.load_state_dict(torch.load(args.model_path))
         return model
 
@@ -42,13 +44,19 @@ class Extractor(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Feature face features."
+        description="test a recognition model."
     )
     parser.add_argument(
         "--model_path", "-model", help="model path.", type=str
     )
     parser.add_argument(
-        "--depth", "-d", help="Number of layers [18, 34, 50, 100, 152, 200].", default="100", type=str
+        "--model", "-model", help="iresnet/vit.", type=str, default="iresnet"
+    )
+    parser.add_argument(
+        "--depth", "-d",
+        help="layers size: resnet [18, 34, 50, 100, 152, 200] / vit [s, b, l].",
+        default="100",
+        type=str
     )
     parser.add_argument("--batch_size", "-b", help="Batch size.", default=512, type=int)
     parser.add_argument("--workers", "-w", help="workers.", default=2, type=int)
