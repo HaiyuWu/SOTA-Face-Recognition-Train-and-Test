@@ -49,23 +49,18 @@ python3 utils/prepare_test_images.py \
 ## Train your own model
 After finishing the training and testing sets preparation, you train your own model by:
 ```
-torchrun train.py \
---train_source ./datasets/your_dataset.lmdb \
---val_source ./test_set_package_5 \
---val_list lfw cfp_fp agedb_30 calfw cplfw \
---prefix task_name \
---head arcface \
---batch_size 512 \
---depth 100 \
---margin 0.5
+torchrun --nproc_per_node=4 train.py --config_file ./configs/arcface_r100.py
 ```
+You can change the settings at [configs](https://github.com/HaiyuWu/SOTA-FR-train-and-test/tree/main/configs).
 
 ## Test your own model
 ```
 python3 test.py \
 --model_path path/of/the/weights \
+--model iresnet \
+--depth 100 \
 --val_list lfw cfp_fp agedb_30 calfw cplfw \
---val_source ./test_set_package_5
+--val_source ./test_sets
 ```
 
 ## Feature extraction
@@ -73,6 +68,7 @@ Using [file_path_extractor.py](https://github.com/HaiyuWu/useful_tools/blob/main
 ```
 python3 feature_extractor.py \
 --model_path path/of/the/weights \
+--model iresnet \
 --depth 100 \
 --image_paths image/path/file \
 --destination feature/destination
@@ -112,9 +108,9 @@ Thanks for the valuable contribution of [InsightFace](https://github.com/deepins
 
 ## TODO list
 Functions:
+- [ ] conda env installation
 - [ ] resume from training
-- [ ] use .yaml to set up the configurations
-- [ ] train with vit
+- [x] train with vit
 - [x] feature extraction script
 - [x] partial FC
 - [x] distributed training
@@ -131,7 +127,7 @@ Methods:
 Backbones:
 - [x] iresnet (18, 34, 50, 100, 152, 200)
 - [ ] irse
-- [ ] vit
+- [x] vit
 
 Others:
 - [ ] test on IJB-B, IJB-C, XQLFW, SLLFW, MLFW, TALFW, DoppelVer
