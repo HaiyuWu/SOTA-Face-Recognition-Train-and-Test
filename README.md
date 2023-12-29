@@ -119,7 +119,6 @@ Thanks for the valuable contribution of [InsightFace](https://github.com/deepins
 
 ## TODO list
 Functions:
-- [ ] conda env installation
 - [ ] resume from training
 - [x] train with vit
 - [x] feature extraction script
