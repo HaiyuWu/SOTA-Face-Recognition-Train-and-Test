@@ -42,7 +42,6 @@ class Config(EasyDict):
         self.fp16 = args.fp16
         self.sample_rate = args.sample_rate
         self.mask = args.mask
-        self.local_rank = args.local_rank
         self.work_path = path.join("./workspace/", self.prefix)
         self.model_path = path.join(self.work_path, "models")
         self.log_path = path.join(self.work_path, "log")

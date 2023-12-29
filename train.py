@@ -99,6 +99,8 @@ class Train:
 
         self.save_file(self.optimizer, "optimizer.txt")
         self.tensorboard_loss_every = 1000
+        self.best_acc = -1
+        self.best_step = 0
 
     def run(self):
         self.model.train()
@@ -106,8 +108,6 @@ class Train:
         amp = torch.cuda.amp.grad_scaler.GradScaler(growth_interval=100)
         running_loss = 0.0
         step = 0
-        best_step = 0
-        best_acc = -1
 
         for epoch in range(self.config.epochs):
             if isinstance(self.train_loader, DataLoader):
@@ -152,55 +152,47 @@ class Train:
                         epoch, self.config.epochs, idx, len(self.train_loader), loss.item()
                     )
                 step += 1
-            if local_rank == 0:
-                val_acc, _ = self.evaluate(step)
-                self.model.train()
-                best_acc, best_step = self.save_model(
-                    val_acc, best_acc, step, best_step
-                )
-                print(f"Best accuracy: {best_acc:.5f} at step {best_step}")
+            self.save_model(step)
 
-        val_acc, val_loss = self.evaluate(step)
-        best_acc = self.save_model(val_acc, best_acc, step, best_step)
-        print(f"Best accuracy: {best_acc} at step {best_step}")
-
-    def save_model(self, val_acc, best_acc, step, best_step):
-        if val_acc > best_acc:
-            best_acc = val_acc
-            best_step = step
-        save_state(self.model, self.optimizer, self.config, val_acc, step, head=self.head)
-
-        return best_acc, best_step
+    def save_model(self, step):
+        if local_rank == 0:
+            val_acc, _ = self.evaluate(step)
+            if val_acc > self.best_acc:
+                self.best_acc = val_acc
+                self.best_step = step
+            save_state(self.model, self.optimizer, self.config, val_acc, step, head=self.head)
+            print(f"Best accuracy: {self.best_acc:.5f} at step {self.best_step}")
 
     def reduce_lr(self):
         for params in self.optimizer.param_groups:
             params["lr"] /= 10
-
-        print(self.optimizer)
+        if local_rank == 0:
+            print(self.optimizer)
 
     def tensorboard_val(self, accuracy, step, loss=0, dataset=""):
-        if local_rank == 0:
-            self.writer.add_scalar("{}val_acc".format(dataset), accuracy, step)
+        self.writer.add_scalar("{}val_acc".format(dataset), accuracy, step)
 
     def evaluate(self, step):
-        val_loss = 0
-        val_acc = 0
-        print("Validating...")
-        for idx, validation in enumerate(self.validation_list):
-            dataset, issame, val_name = validation
-            acc, std = self.evaluate_recognition(dataset, issame)
-            self.tensorboard_val(acc, step, dataset=f"{val_name}_")
-            print(f"{val_name}: {acc:.5f}+-{std:.5f}")
-            val_acc += acc
+        if local_rank == 0:
+            self.model.eval()
+            val_loss = 0
+            val_acc = 0
+            print("Validating...")
+            for idx, validation in enumerate(self.validation_list):
+                dataset, issame, val_name = validation
+                acc, std = self.evaluate_recognition(dataset, issame)
+                self.tensorboard_val(acc, step, dataset=f"{val_name}_")
+                print(f"{val_name}: {acc:.5f}+-{std:.5f}")
+                val_acc += acc
 
-        val_acc /= idx + 1
-        self.tensorboard_val(val_acc, step)
-        print(f"Mean accuracy: {val_acc:.5f}")
+            val_acc /= idx + 1
+            self.tensorboard_val(val_acc, step)
+            print(f"Mean accuracy: {val_acc:.5f}")
+            self.model.train()
 
-        return val_acc, val_loss
+            return val_acc, val_loss
 
     def evaluate_recognition(self, samples, issame, nrof_folds=10):
-        self.model.eval()
         embeddings = np.zeros([len(samples), self.config.embedding_size])
         with torch.no_grad():
             for idx in range(0, len(samples), self.config.batch_size):
@@ -241,8 +233,6 @@ if __name__ == "__main__":
         "--num_classes", "-nc", help="Number of classes.", default=85742, type=int
     )
 
-    # training/validation configuration
-    parser.add_argument("--train_list", "-t", help="List of images to train.")
     parser.add_argument(
         "--val_list",
         "-v",
@@ -268,8 +258,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--mask", "-mask", help="selected image mask.", default=None
     )
-    parser.add_argument('--local_rank', default=-1, type=int)
-    parser.add_argument("--fp16", "-fp16", help="using partial fc", action="store_true")
+    parser.add_argument("--fp16", "-fp16", help="fp16 for fc", action="store_true")
     args = parser.parse_args()
 
     config = Config(args)
