@@ -2,7 +2,7 @@ from os import makedirs, path
 import torch
 from easydict import EasyDict
 # from torch.nn.functional import softplus
-from losses_dist import *
+from losses import *
 
 
 class Config(EasyDict):
