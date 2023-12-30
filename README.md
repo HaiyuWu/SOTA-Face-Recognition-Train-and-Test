@@ -124,6 +124,7 @@ Functions:
 - [x] feature extraction script
 - [x] partial FC
 - [x] distributed training
+- [ ] Data Augmentation for AdaFace
 
 Methods:
 - [x] CosFace
