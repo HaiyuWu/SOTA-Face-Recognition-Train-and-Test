@@ -44,7 +44,7 @@ Then run [imagelist2lmdb.py](https://github.com/HaiyuWu/SOTA-FR-train-and-test/b
 ```
 python3 utils/imagelist2lmdb.py \
 --image_list file/of/extracted/image/paths
---destination ../datasets
+--destination ./datasets
 --file_name dataset/name
 ```
 ### Test sets
@@ -53,7 +53,7 @@ Then you can simply run [prepare_test_images.py](https://github.com/HaiyuWu/SOTA
 ```
 python3 utils/prepare_test_images.py \
 --xz_folder folder/contains/xz/files
---destination ../test_set_package_5
+--destination ./test_set_package_5
 --datasets lfw cfp_fp agedb_30 calfw cplfw
 ```
 
