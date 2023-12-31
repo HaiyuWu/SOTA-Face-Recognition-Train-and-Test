@@ -1,7 +1,9 @@
 import argparse
 import os
+import logging
 import numpy as np
 import torch
+from time import time
 from torch import optim, distributed
 from torch.utils.data import DataLoader
 # from lr_scheduler import PolynomialLRWarmup
@@ -9,7 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 from data import LMDBDataLoader, get_val_pair, setup_seed
 from model import iresnet, PartialFC_V2, get_vit
 import verification
-from utils import save_state, TrainLogger, separate_bn_param, create_path, get_config
+from utils import *
 from torch.distributed.algorithms.ddp_comm_hooks.default_hooks import fp16_compress_hook
 
 
@@ -38,6 +40,7 @@ class Train:
         if local_rank == 0:
             create_path(self.config.model_path)
             create_path(self.config.log_path)
+            init_logging(self.config.work_path)
 
         torch.cuda.set_device(local_rank)
 
@@ -46,7 +49,9 @@ class Train:
             train=True
         )
         self.train_loader = self.dataset.get_loader()
+
         class_num = self.dataset.class_num()
+
         if self.config.model == "iresnet":
             self.model = iresnet(self.config.depth, fp16=self.config.fp16).to(local_rank)
         elif self.config.model == "vit":
@@ -60,6 +65,9 @@ class Train:
             self.writer = SummaryWriter(config.log_path)
             dummy_input = torch.zeros(1, 3, 112, 112).to(local_rank)
             self.writer.add_graph(self.model, dummy_input)
+
+            for key, value in self.config.items():
+                logging.info("%-25s %s", key, value)
         else:
             self.writer = None
 
@@ -94,8 +102,16 @@ class Train:
             dataset, issame = get_val_pair(self.config.val_source, val_name)
             self.validation_list.append([dataset, issame, val_name])
 
-        self.save_file(self.config, "config.txt")
+        total_batch = self.config.batch_size * world_size
+        self.train_logger = TrainLogger(
+            total_batch,
+            self.config.frequency_log,
+            self.config.num_ims // total_batch * self.config.epochs,
+            self.config.epochs,
+            self.writer
+        )
 
+        self.save_file(self.config, "config.txt")
         self.save_file(self.optimizer, "optimizer.txt")
         self.tensorboard_loss_every = 1000
         self.best_acc = -1
@@ -104,23 +120,18 @@ class Train:
     def run(self):
         self.model.train()
         self.head.train()
+        loss_am = AverageMeter()
         amp = torch.cuda.amp.grad_scaler.GradScaler(growth_interval=100)
-        running_loss = 0.0
-        step = 0
+        step = 1
 
         for epoch in range(self.config.epochs):
             if isinstance(self.train_loader, DataLoader):
                 self.train_loader.sampler.set_epoch(epoch)
-            train_logger = TrainLogger(
-                self.config.batch_size, self.config.frequency_log, world_size
-            )
-
             if epoch + 1 in self.config.reduce_lr:
                 self.reduce_lr()
 
             for idx, data in enumerate(self.train_loader):
                 imgs, labels = data
-                self.optimizer.zero_grad()
                 embeddings = self.model(imgs)
                 loss = self.head(embeddings, labels)
 
@@ -138,19 +149,12 @@ class Train:
                     self.optimizer.zero_grad()
                 self.optimizer.step()
 
-                running_loss += loss.item()
-
+                loss_am.update(loss.item(), 1)
                 self.optimizer.step()
 
-                if local_rank == 0:
-                    if step % self.tensorboard_loss_every == 0:
-                        loss_board = running_loss / self.tensorboard_loss_every
-                        self.writer.add_scalar("train_loss", loss_board, step)
-                        running_loss = 0.0
-                    train_logger(
-                        epoch, self.config.epochs, idx, len(self.train_loader), loss.item()
-                    )
+                self.train_logger(step, epoch, loss_am, local_rank)
                 step += 1
+
             self.save_model(step)
 
     def save_model(self, step):
@@ -160,33 +164,28 @@ class Train:
                 self.best_acc = val_acc
                 self.best_step = step
             save_state(self.model, self.optimizer, self.config, val_acc, step, head=self.head)
-            print(f"Best accuracy: {self.best_acc:.5f} at step {self.best_step}")
+            logging.info(f"Best accuracy: {self.best_acc:.5f} at step {self.best_step}")
 
     def reduce_lr(self):
         for params in self.optimizer.param_groups:
             params["lr"] /= 10
-        if local_rank == 0:
-            print(self.optimizer)
-
-    def tensorboard_val(self, accuracy, step, loss=0, dataset=""):
-        self.writer.add_scalar("{}val_acc".format(dataset), accuracy, step)
 
     def evaluate(self, step):
         if local_rank == 0:
             self.model.eval()
             val_loss = 0
             val_acc = 0
-            print("Validating...")
+            logging.info(f"Validating...")
             for idx, validation in enumerate(self.validation_list):
                 dataset, issame, val_name = validation
                 acc, std = self.evaluate_recognition(dataset, issame)
-                self.tensorboard_val(acc, step, dataset=f"{val_name}_")
-                print(f"{val_name}: {acc:.5f}+-{std:.5f}")
+                self.writer.add_scalar("{} acc".format(val_name), acc, step)
+                logging.info(f"{val_name}: {acc:.5f}+-{std:.5f}")
                 val_acc += acc
 
             val_acc /= idx + 1
-            self.tensorboard_val(val_acc, step)
-            print(f"Mean accuracy: {val_acc:.5f}")
+            self.writer.add_scalar("Mean acc", val_acc, step)
+            logging.info(f"Mean accuracy: {val_acc:.5f}")
             self.model.train()
 
             return val_acc, val_loss

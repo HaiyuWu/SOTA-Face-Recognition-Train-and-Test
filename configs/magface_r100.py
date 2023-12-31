@@ -15,6 +15,7 @@ config.epochs = 20
 config.margin = (10, 110, 0.45, 0.8)
 config.fp16 = True
 config.sample_rate = 1.0
+config.num_ims = 5822653
 config.train_source = "./datasets/ms1mv2.lmdb"
 config.val_list = ["lfw", "cfp_fp", "agedb_30"]
 config.mask = None
