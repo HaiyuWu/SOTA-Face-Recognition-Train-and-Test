@@ -24,8 +24,10 @@ I suggest you to use Anaconda to better control the environments
 conda create -n fr_training python=3.8
 conda activate fr_training
 ```
-Then use pip to install the dependencies
+Then clone the package and use pip to install the dependencies
 ```
+git clone https://github.com/HaiyuWu/SOTA-FR-train-and-test.git
+cd ./SOTA-FR-train-and-test
 pip install -r requirements.txt
 ```
 
