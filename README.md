@@ -1,6 +1,8 @@
 
 # SOTA-FR-train-and-test
-This repository provides a neat package to efficiently train and test state-of-the-art face recognition models. 
+This repository provides a neat package to efficiently train and test state-of-the-art face recognition models.
+
+***Partial-FC training is supported for all the supported methods***.
 
 ## Table of contents
 
