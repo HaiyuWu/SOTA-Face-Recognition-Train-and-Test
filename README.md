@@ -146,6 +146,7 @@ Methods:
 - [x] AdaFace
 - [ ] CurricularFace
 - [ ] Circle loss
+- [ ] UniFace
 - [x] MagFace
 
 Backbones:
