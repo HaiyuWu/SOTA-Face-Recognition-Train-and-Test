@@ -106,10 +106,11 @@ python3 feature_extractor.py \
 | SphereFace-R100 (m=1.7) |  MS1MV2   | 99.83 | 98.20  | 92.77 |  98.08   | 96.13 | [Gdrive](https://drive.google.com/file/d/1vCMSDF65bslXcU0kxCadBrdW48v-7oPt/view?usp=drive_link) |
 | ArcFace-R100 (m=0.5)    |  MS1MV2   | 99.78 | 98.20  | 93.15 |  98.13   | 96.03 | [Gdrive](https://drive.google.com/file/d/1MH2eCU_II2nUtkDHgyD0Scxua1MDZtdE/view?usp=drive_link) |
 | ArcFace-R100 (combined) |  MS1MV2   | 99.82 | 98.07  | 92.60 |  97.95   | 96.18 | [Gdrive](https://drive.google.com/file/d/13K1loXa_YWhkXRSaNXuEqbrCT74nLsoB/view?usp=drive_link) |
-| MagFace-R100            |  MS1MV2   | 99.83 | 98.20  | 92.33 |  98.07   | 96.10 | [Gdrive](https://drive.google.com/file/d/1h_V93Sc1NB5eLW26-pB7KCB7-BSCYHZj/view?usp=drive_link) |
 | CurricularFace-R100     |  MS1MV2   |   -   |   -    |   -   |    -     |   -   |                                                -                                                |
 | CircleLoss-R100         |  MS1MV2   |   -   |   -    |   -   |    -     |   -   |                                                -                                                |
+| MagFace-R100            |  MS1MV2   | 99.83 | 98.20  | 92.33 |  98.07   | 96.10 | [Gdrive](https://drive.google.com/file/d/1h_V93Sc1NB5eLW26-pB7KCB7-BSCYHZj/view?usp=drive_link) |
 | AdaFace-R100 (m=0.4)    |  MS1MV2   | 99.82 | 98.34  | 93.05 |  98.17   | 96.10 | [Gdrive](https://drive.google.com/file/d/1a0BkAUwFC8O_sR2cW0NOM93zgOKBWbsr/view?usp=drive_link) |
+| UniFace-R100            |  MS1MV2   |   -   |   -    |   -   |    -     |   -   |                                                -                                                |
 | MagFace-R50             | WebFace4M | 99.73 | 98.77  | 93.48 |  97.72   | 95.97 | [Gdrive](https://drive.google.com/file/d/1ExTFjubgP5rRVhIkOa7aRBRgwSvKJQoL/view?usp=drive_link) |
 | AdaFace-R50 (m=0.4)     | WebFace4M | 99.80 | 99.03  | 94.48 |  97.72   | 96.08 | [Gdrive](https://drive.google.com/file/d/1YRqrXGOao5F3mVQXZ90dt-WLEICNqbYY/view?usp=drive_link) |
 | ArcFace-R100 (combined) | WebFace4M | 99.77 | 99.06  | 94.05 |  97.83   | 96.03 | [Gdrive](https://drive.google.com/file/d/1DXoYmNi5O2U_HF6vj4WKNHPEpWYNaw5O/view?usp=drive_link) |
@@ -142,19 +143,13 @@ Thanks for the valuable contribution of [InsightFace](https://github.com/deepins
 ## TODO list
 Functions:
 - [ ] resume from training
-- [x] train with vit
-- [x] feature extraction script
-- [x] partial FC
-- [x] distributed training
 - [ ] Data Augmentation for AdaFace
 
 Methods:
 - [ ] Circle loss
 
 Backbones:
-- [x] iresnet (18, 34, 50, 100, 152, 200)
 - [ ] irse
-- [x] vit
 
 Others:
 - [ ] test on IJB-B, IJB-C, XQLFW, SLLFW, MLFW, TALFW, DoppelVer
