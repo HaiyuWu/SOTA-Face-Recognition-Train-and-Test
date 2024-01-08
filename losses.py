@@ -1,6 +1,7 @@
 import math
 import torch
 import torch.nn as nn
+from torch.nn import Parameter
 
 
 class CombinedMarginLoss(nn.Module):
@@ -17,14 +18,7 @@ class CombinedMarginLoss(nn.Module):
         self.m3 = m3
         self.interclass_filtering_threshold = interclass_filtering_threshold
 
-        # For ArcFace
-        self.cos_m = math.cos(self.m2)
-        self.sin_m = math.sin(self.m2)
-        self.theta = math.cos(math.pi - self.m2)
-        self.sinmm = math.sin(math.pi - self.m2) * self.m2
-        self.easy_margin = False
-
-    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **kwargs):
         index_positive = torch.where(labels != -1)[0]
 
         if self.interclass_filtering_threshold > 0:
@@ -64,8 +58,8 @@ class ArcFace(nn.Module):
         self.s = s
         self.margin = margin
 
-    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
-        logits.clamp(-1.0 + 1e-7, 1.0 - 1e-7)
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **kwargs):
+        logits = logits.clamp(-1.0 + 1e-7, 1.0 - 1e-7)
         # index of the ground truth labels in the current batch
         index = torch.where(labels != -1)[0]
         # find the corresponding logit
@@ -85,14 +79,51 @@ class ArcFace(nn.Module):
         return logits, None
 
 
+class CurricularFace(nn.Module):
+    def __init__(self, margin=0.5, s=64.):
+        super(CurricularFace, self).__init__()
+        self.margin = margin
+        self.s = s
+        self.cos_m = math.cos(margin)
+        self.sin_m = math.sin(margin)
+        self.threshold = math.cos(math.pi - margin)
+        self.mm = math.sin(math.pi - margin) * margin
+        self.register_buffer('t', torch.zeros(1))
+
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **kwargs):
+        index = torch.where(labels != -1)[0]
+        cos_theta = logits.clamp(-1, 1)
+        target_chunk = cos_theta[index, :]
+        target_logit = cos_theta[index, labels[index].view(-1)]
+
+        labels = labels.view(-1)
+
+        sin_theta = torch.sqrt(1.0 - torch.pow(target_logit, 2))
+        cos_theta_m = target_logit * self.cos_m - sin_theta * self.sin_m #cos(target+margin)
+        # find the place where the value of incorrect predictions are larger than correct prediction + margin -> hard samples
+        mask = target_chunk > cos_theta_m[:, None]
+
+        final_target_logit = torch.where(target_logit > self.threshold, cos_theta_m, target_logit - self.mm)
+
+        hard_example = target_chunk[mask]
+        with torch.no_grad():
+            self.t = target_chunk.mean() * 0.01 + (1 - 0.01) * self.t
+
+        target_chunk[mask] = hard_example * (self.t + hard_example)
+        cos_theta[index, :] = target_chunk
+        cos_theta[index, labels[index].view(-1)] = final_target_logit
+        output = cos_theta * self.s
+        return output, None
+
+
 class SphereFace(nn.Module):
     def __init__(self, s=64.0, margin=1.7):
         super(SphereFace, self).__init__()
         self.s = s
         self.margin = margin
 
-    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
-        logits.clamp(-1.0 + 1e-7, 1.0 - 1e-7)
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **kwargs):
+        logits = logits.clamp(-1.0 + 1e-7, 1.0 - 1e-7)
         index = torch.where(labels != -1)[0]
         target_logit = logits[index, labels[index].view(-1)]
         with torch.no_grad():
@@ -113,8 +144,8 @@ class CosFace(nn.Module):
         self.s = s
         self.margin = margin
 
-    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
-        logits.clamp(-1.0 + 1e-7, 1.0 - 1e-7)
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **kwargs):
+        logits = logits.clamp(-1.0 + 1e-7, 1.0 - 1e-7)
         index = torch.where(labels != -1)[0]
         target_logit = logits[index, labels[index].view(-1)]
         with torch.no_grad():
@@ -144,7 +175,7 @@ class AdaFace(nn.Module):
         self.register_buffer('batch_mean', torch.ones(1)*(20))
         self.register_buffer('batch_std', torch.ones(1)*100)
 
-    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **kwargs):
         index = torch.where(labels != -1)[0]
         cosine = logits.clamp(-1+self.eps, 1-self.eps)
         target_logit = cosine[index, labels[index].view(-1)]
@@ -197,11 +228,11 @@ class MagFace(nn.Module):
         g = 1 / (self.u_a ** 2) * x_norm + 1 / (x_norm)
         return torch.mean(g)
 
-    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **kwargs):
         index = torch.where(labels != -1)[0]
         target_logit = logits[index, labels[index].view(-1)]
 
-        x_norm = torch.norm(embeddings, dim=1, keepdim=True).clamp(self.l_a, self.u_a)[index]
+        x_norm = torch.norm(kwargs['embeddings'], dim=1, keepdim=True).clamp(self.l_a, self.u_a)[index]
 
         ada_margin = self._margin(x_norm)
         cos_m, sin_m = torch.cos(ada_margin).view(-1), torch.sin(ada_margin).view(-1)
@@ -215,42 +246,33 @@ class MagFace(nn.Module):
         return logits, loss_g
 
 
-class CurricularFace(nn.Module):
-    def __init__(self, margin=0.5, s=64.):
-        super(CurricularFace, self).__init__()
+class UniFace(nn.Module):
+    def __init__(self, margin=0.4, s=64, l=1.0, r=1.0, bias_init=15):
+        super(UniFace, self).__init__()
         self.margin = margin
         self.s = s
-        self.cos_m = math.cos(margin)
-        self.sin_m = math.sin(margin)
-        self.threshold = math.cos(math.pi - margin)
-        self.mm = math.sin(math.pi - margin) * margin
-        self.register_buffer('t', torch.zeros(1))
+        self.l = l
+        self.r = r
+        self.bias = Parameter(torch.FloatTensor(1))
+        nn.init.constant_(self.bias, bias_init)
 
-    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+    def forward(self, cos_theta: torch.Tensor, labels: torch.Tensor, **kwargs):
         index = torch.where(labels != -1)[0]
-        cos_theta = logits.clamp(-1, 1)
         target_chunk = cos_theta[index, :]
-        target_logit = cos_theta[index, labels[index].view(-1)]
+        cos_m_theta_p = self.s * (target_chunk - self.margin) - self.bias
+        cos_m_theta_n = self.s * target_chunk - self.bias
 
-        labels = labels.view(-1)
+        p_loss = torch.log(1 + torch.exp(-cos_m_theta_p.clamp(min=-self.s, max=self.s)))
+        n_loss = torch.log(1 + torch.exp(cos_m_theta_n.clamp(min=-self.s, max=self.s))) * self.l
 
-        sin_theta = torch.sqrt(1.0 - torch.pow(target_logit, 2))
-        cos_theta_m = target_logit * self.cos_m - sin_theta * self.sin_m #cos(target+margin)
-        # find the place where the value of incorrect predictions are larger than correct prediction + margin -> hard samples
-        mask = target_chunk > cos_theta_m[:, None]
+        # --------------------------- convert label to one-hot ---------------------------
+        one_hot = torch.zeros((labels[index].size(0), kwargs['out_features']), dtype=torch.bool)
+        one_hot = one_hot.cuda() if cos_theta.is_cuda else one_hot
+        one_hot.scatter_(1, labels[index].view(-1, 1).long(), 1)
+        loss = one_hot * p_loss + (~one_hot) * n_loss
 
-        final_target_logit = torch.where(target_logit > self.threshold, cos_theta_m, target_logit - self.mm)
+        return loss.sum(dim=1).mean(), "uniface"
 
-        hard_example = target_chunk[mask]
-        with torch.no_grad():
-            self.t = target_chunk.mean() * 0.01 + (1 - 0.01) * self.t
-
-        target_chunk[mask] = hard_example * (self.t + hard_example)
-        cos_theta[index, :] = target_chunk
-        cos_theta[index, labels[index].view(-1)] = final_target_logit
-        output = cos_theta * self.s
-        return output, None
-    
 
 ###############
 # Circle Loss #

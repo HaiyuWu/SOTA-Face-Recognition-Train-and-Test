@@ -4,6 +4,16 @@ This repository provides a neat package to efficiently train and test state-of-t
 
 ***Partial-FC training is supported for all the supported methods***.
 
+### Support Methods
+Methods:
+- CosFace :white_check_mark:
+- SphereFace :white_check_mark:
+- ArcFace :white_check_mark:
+- ArcFace - combined margin :white_check_mark:
+- CurricularFace :white_check_mark:
+- MagFace :white_check_mark:
+- AdaFace :white_check_mark:
+- UniFace :white_check_mark:
 ## Table of contents
 
 <!--ts-->
@@ -139,15 +149,7 @@ Functions:
 - [ ] Data Augmentation for AdaFace
 
 Methods:
-- [x] CosFace
-- [x] SphereFace
-- [x] ArcFace
-- [x] ArcFace - combined margin
-- [x] AdaFace
-- [x] CurricularFace
 - [ ] Circle loss
-- [ ] UniFace
-- [x] MagFace
 
 Backbones:
 - [x] iresnet (18, 34, 50, 100, 152, 200)

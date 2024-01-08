@@ -124,7 +124,6 @@ class PartialFC_V2(torch.nn.Module):
         """
         local_labels.squeeze_()
         local_labels = local_labels.long()
-
         batch_size = local_embeddings.size(0)
         if self.last_batch_size == 0:
             self.last_batch_size = batch_size
@@ -161,11 +160,18 @@ class PartialFC_V2(torch.nn.Module):
             norm_embeddings = normalize(embeddings)
             norm_weight_activated = normalize(weight)
             logits = linear(norm_embeddings, norm_weight_activated)
+
         if self.fp16:
             logits = logits.float()
         logits = logits.clamp(-1, 1)
 
-        logits, other = self.margin_softmax(logits, labels, embeddings)
+        logits, other = self.margin_softmax(logits,
+                                            labels,
+                                            embeddings=embeddings,
+                                            out_features=self.num_local)
+        # for uniface
+        if other == "uniface":
+            return logits
         loss = self.dist_cross_entropy(logits, labels)
         # for magface
         if other is not None:

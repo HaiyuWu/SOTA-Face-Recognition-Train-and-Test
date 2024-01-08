@@ -11,6 +11,8 @@ RECOGNITION_HEAD = {
         "adaface": AdaFace,
         "sphereface": SphereFace,
         "magface": MagFace,
+        "curricularface": CurricularFace,
+        "uniface": UniFace,
         # "circleloss": CircleLoss
     }
 
@@ -32,6 +34,9 @@ def get_config(config_file):
     elif cfg.head == "magface":
         l_a, u_a, l_margin, u_margin = cfg.margin
         cfg["recognition_head"] = RECOGNITION_HEAD[cfg.head](l_a=l_a, u_a=u_a, l_margin=l_margin, u_margin=u_margin)
+    elif cfg.head == "uniface":
+        margin, bias_init = cfg.margin
+        cfg["recognition_head"] = RECOGNITION_HEAD[cfg.head](margin=margin, bias_init=bias_init)
     else:
         cfg["recognition_head"] = RECOGNITION_HEAD[cfg.head](margin=cfg.margin)
 
