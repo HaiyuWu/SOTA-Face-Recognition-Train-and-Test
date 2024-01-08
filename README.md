@@ -144,7 +144,7 @@ Methods:
 - [x] ArcFace
 - [x] ArcFace - combined margin
 - [x] AdaFace
-- [ ] CurricularFace
+- [x] CurricularFace
 - [ ] Circle loss
 - [ ] UniFace
 - [x] MagFace

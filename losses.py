@@ -215,6 +215,43 @@ class MagFace(nn.Module):
         return logits, loss_g
 
 
+class CurricularFace(nn.Module):
+    def __init__(self, margin=0.5, s=64.):
+        super(CurricularFace, self).__init__()
+        self.margin = margin
+        self.s = s
+        self.cos_m = math.cos(margin)
+        self.sin_m = math.sin(margin)
+        self.threshold = math.cos(math.pi - margin)
+        self.mm = math.sin(math.pi - margin) * margin
+        self.register_buffer('t', torch.zeros(1))
+
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, embeddings: torch.Tensor):
+        index = torch.where(labels != -1)[0]
+        cos_theta = logits.clamp(-1, 1)
+        target_chunk = cos_theta[index, :]
+        target_logit = cos_theta[index, labels[index].view(-1)]
+
+        labels = labels.view(-1)
+
+        sin_theta = torch.sqrt(1.0 - torch.pow(target_logit, 2))
+        cos_theta_m = target_logit * self.cos_m - sin_theta * self.sin_m #cos(target+margin)
+        # find the place where the value of incorrect predictions are larger than correct prediction + margin -> hard samples
+        mask = target_chunk > cos_theta_m[:, None]
+
+        final_target_logit = torch.where(target_logit > self.threshold, cos_theta_m, target_logit - self.mm)
+
+        hard_example = target_chunk[mask]
+        with torch.no_grad():
+            self.t = target_chunk.mean() * 0.01 + (1 - 0.01) * self.t
+
+        target_chunk[mask] = hard_example * (self.t + hard_example)
+        cos_theta[index, :] = target_chunk
+        cos_theta[index, labels[index].view(-1)] = final_target_logit
+        output = cos_theta * self.s
+        return output, None
+    
+
 ###############
 # Circle Loss #
 ###############
