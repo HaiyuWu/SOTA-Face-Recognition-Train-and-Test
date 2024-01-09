@@ -5,14 +5,14 @@ This repository provides a neat package to efficiently train and test state-of-t
 ***Partial-FC training is supported for all the supported methods***.
 
 ### Support Methods
-- CosFace :white_check_mark:
-- SphereFace :white_check_mark:
-- ArcFace :white_check_mark:
-- ArcFace - combined margin :white_check_mark:
-- CurricularFace :white_check_mark:
-- MagFace :white_check_mark:
-- AdaFace :white_check_mark:
-- UniFace :white_check_mark:
+- SphereFace (**CVPR17**) :white_check_mark:
+- CosFace (**CVPR18**) :white_check_mark:
+- ArcFace (**CVPR19**) :white_check_mark:
+- ArcFace - combined margin (**CVPR19**) :white_check_mark:
+- CurricularFace (**CVPR20**) :white_check_mark:
+- MagFace (**CVPR21**) :white_check_mark:
+- AdaFace (**CVPR22**) :white_check_mark:
+- UniFace (**ICCV23**) :white_check_mark:
 ## Table of contents
 
 <!--ts-->
