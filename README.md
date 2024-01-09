@@ -143,6 +143,7 @@ Thanks for the valuable contribution of [InsightFace](https://github.com/deepins
 Functions:
 - [ ] resume from training
 - [ ] Data Augmentation for AdaFace
+- [ ] optimizer options
 
 Methods:
 - [ ] Circle loss
