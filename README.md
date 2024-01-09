@@ -152,6 +152,7 @@ Backbones:
 
 Others:
 - [ ] test on IJB-B, IJB-C, XQLFW, SLLFW, MLFW, TALFW, DoppelVer
+- [ ] UniFace pretrained test
 - [ ] Published papers
 - [ ] references
 
