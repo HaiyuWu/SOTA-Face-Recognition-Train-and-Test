@@ -21,6 +21,7 @@ This repository provides a neat package to efficiently train and test state-of-t
   * [Test sets](#test-sets)
 - [Train your own model](#train-your-own-model)
 - [Test your own model](#test-your-own-model)
+- [Model Zoo](#model-zoo)
 - [Feature extraction](#feature-extraction)
 - [Test SOTA models](#test-sota-models)
   * [Model Weights](#model-weights)
@@ -87,6 +88,9 @@ python3 test.py \
 --val_source ./test_sets
 ```
 
+## Model Zoo
+The trained weights can be downloaded at [model zoo](./model_zoo)
+
 ## Feature extraction
 Using [file_path_extractor.py](https://github.com/HaiyuWu/useful_tools/blob/main/file_path_extractor.py) to collect the paths of the target images, then run following command to extract the features.
 ```
@@ -97,9 +101,6 @@ python3 feature_extractor.py \
 --image_paths image/path/file \
 --destination feature/destination
 ```
-
-## Model Zoo
-The trained weights can be downloaded at [model zoo](./model_zoo)
 
 ## Test SOTA models
 Now, we support testing for ArcFace (CVPR19), CurricularFace(CVPR20), MagFace(CVPR21), AdaFace(CVPR22), and TransFace(ICCV23).
