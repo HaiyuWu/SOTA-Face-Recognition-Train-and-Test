@@ -117,6 +117,11 @@ python3 feature_extractor.py \
 | MagFace-R100                | WebFace4M | 99.82 | 99.11  | 94.20 |  97.83   | 96.03 | TODO |
 | AdaFace-R100 (m=0.4)        | WebFace4M | 99.80 | 99.03  | 94.48 |  97.72   | 96.08 | [Gdrive](https://drive.google.com/file/d/1YRqrXGOao5F3mVQXZ90dt-WLEICNqbYY/view?usp=drive_link) |
 | UniFace-R100 (m=0.5)        | WebFace4M | 99.78 | 99.16  | 94.20 |  97.70   | 96.10 | TODO |
+| ArcFace-R100 (m=0.5)        | Glint360k | 99.82 | 99.09  | 94.67 |  98.45   | 96.13 | TODO |
+| CurricularFace-R100 (m=0.5) | Glint360k | 99.82 | 99.21  | 94.53 |  98.50   | 96.05 | TODO |
+| MagFace-R100                | Glint360k | 99.80 | 99.00  | 94.63 |  98.37   | 96.23 | TODO |
+| AdaFace-R100 (m=0.4)        | Glint360k | 99.80 | 99.24  | 94.92 |  98.43   | 96.03 | TODO |
+| UniFace-R100 (m=0.5)        | Glint360k | 99.73 | 98.90  | 94.65 |  98.25   | 96.12 | TODO |
 
 ## Test SOTA models
 Now, we support testing for ArcFace (CVPR19), CurricularFace(CVPR20), MagFace(CVPR21), AdaFace(CVPR22), and TransFace(ICCV23).
