@@ -4,7 +4,7 @@ This repository provides a neat package to efficiently train and test state-of-t
 
 ***Partial-FC training is supported for all the supported methods***.
 
-### Support Methods
+### Supported Methods
 - SphereFace (**CVPR17**) :white_check_mark:
 - CosFace (**CVPR18**) :white_check_mark:
 - ArcFace (**CVPR19**) :white_check_mark:
