@@ -5,6 +5,7 @@ import numpy as np
 import pickle
 from os import path, makedirs
 import cv2
+import matplotlib.pyplot as plt
 
 
 def load_xz(file_path, image_size=(112, 112)):

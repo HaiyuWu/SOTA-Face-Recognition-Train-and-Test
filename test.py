@@ -30,6 +30,7 @@ class Test:
         return model
 
     def evaluate(self):
+        self.model.eval()
         val_acc = 0
         print("Validating...")
         for idx, validation in enumerate(self.validation_list):
@@ -41,19 +42,34 @@ class Test:
 
         print(f"Mean accuracy: {val_acc:.5f}\n")
 
+    def l2_norm(self, input: torch.Tensor, axis=1):
+        norm = torch.norm(input, 2, axis, True)
+        output = torch.div(input, norm)
+        return output, norm
+
     def evaluate_recognition(self, samples, issame, nrof_folds=10):
-        self.model.eval()
-        embeddings = np.zeros([len(samples), 512])
+        embedding_length = len(samples) // 2
+        embeddings = np.zeros([embedding_length, 512])
+
         with torch.no_grad():
-            for idx in range(0, len(samples), args.batch_size):
-                batch = torch.tensor(samples[idx: idx + args.batch_size])
-                embeddings[
-                    idx: idx + args.batch_size
-                ] = self.model(batch.to(self.device)).cpu()
+            for idx in range(0, embedding_length, args.batch_size):
+                batch_flip = torch.tensor(samples[embedding_length + idx: embedding_length + idx + args.batch_size])
+                batch_or = torch.tensor(samples[idx: idx + batch_flip.shape[0]])
+                if args.add_flip:
+                    embeddings[idx: idx + args.batch_size] = self.model(batch_or.to(self.device)).cpu() + \
+                                                             self.model(batch_flip.to(self.device)).cpu()
+                elif args.add_norm:
+                    embeddings_flip, norms_flip = self.l2_norm(self.model(batch_flip.to(self.device)), axis=1)
+                    embeddings_or, norms_or = self.l2_norm(self.model(batch_or.to(self.device)), axis=1)
+                    embeddings[idx: idx + args.batch_size] = (embeddings_flip * norms_flip +
+                                                              embeddings_or * norms_or).cpu()
+                else:
+                    embeddings[idx: idx + args.batch_size] = self.model(batch_or.to(self.device)).cpu()
                 idx += args.batch_size
         normalized_embedding = np.divide(embeddings, np.linalg.norm(embeddings, 2, 1, True))
+
         tpr, fpr, accuracy = verification.evaluate(
-            normalized_embedding, issame, nrof_folds
+            normalized_embedding, issame, nrof_folds, cosine=args.cosine
         )
 
         return round(accuracy.mean(), 5), round(accuracy.std(), 5)
@@ -76,6 +92,9 @@ if __name__ == "__main__":
         type=str
     )
     parser.add_argument("--batch_size", "-b", help="Batch size.", default=512, type=int)
+    parser.add_argument("--add_flip", "-aflip", help="Add flipped image features.", action="store_true")
+    parser.add_argument("--add_norm", "-anorm", help="Add feature norm.", action="store_true")
+    parser.add_argument("--cosine", "-cosine", help="cosine distance.", action="store_true")
     parser.add_argument(
         "--val_list",
         "-v",

@@ -25,3 +25,5 @@ config.margin = 0.5
 config.fp16 = True
 config.sample_rate = 1.0
 config.mask = None
+config.add_flip = True
+config.add_norm = False

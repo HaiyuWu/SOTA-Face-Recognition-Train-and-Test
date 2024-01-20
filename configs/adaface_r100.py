@@ -19,3 +19,5 @@ config.num_ims = 5822653
 config.train_source = "./datasets/ms1mv2.lmdb"
 config.val_list = ["lfw", "cfp_fp", "agedb_30"]
 config.mask = None
+config.add_flip = False
+config.add_norm = True

@@ -2,7 +2,7 @@ from easydict import EasyDict
 
 config = EasyDict()
 
-config.prefix = "curricularface-r100-ms1mv2"
+config.prefix = "curricularface-r100-glint360k"
 config.head = "curricularface"
 config.input_size = [112, 112]
 config.embedding_size = 512
@@ -15,8 +15,8 @@ config.epochs = 20
 config.margin = 0.5
 config.fp16 = True
 config.sample_rate = 1.0
-config.num_ims = 5822653
-config.train_source = "./datasets/ms1mv2.lmdb"
-config.val_list = ["lfw", "cfp_fp", "agedb_30"]
+config.num_ims = 17091657
+config.train_source = "./datasets/glint360k.lmdb"
+config.val_list = ["lfw", "cfp_fp", "cplfw", "agedb_30", "calfw"]
 config.mask = None
 config.add_flip = True

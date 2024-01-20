@@ -78,7 +78,12 @@ torchrun --nproc_per_node=4 train.py --config_file ./configs/arcface_r100.py
 ```
 You can change the settings at [configs](https://github.com/HaiyuWu/SOTA-FR-train-and-test/tree/main/configs).
 
+Note that, AdaFace and MagFace use BGR channel to train the model, but this framework consistently use RGB to train the model. Also, for MagFace, it uses ```mean=0.``` and ```std=1.``` to normalize the images, but this framework uses ```mean=0.5``` and ```std=0.5``` to train and test all the methods.
+
+If you want to train the model align with the original way, you can change the [data_loader_train_lmdb.py](./data/data_loader_train_lmdb.py) file.
+
 ## Test your own model
+For CosFace, SphereFace, ArcFace, CurricularFace, UniFace, adding ```--add_flip``` option to test. For AdaFace, adding ```--add_norm``` option to test.
 ```
 python3 test.py \
 --model_path path/of/the/weights \

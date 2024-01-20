@@ -1,6 +1,6 @@
 import importlib
 from os import path, makedirs
-from losses_dist import *
+from losses import *
 import torch
 
 
@@ -18,7 +18,6 @@ RECOGNITION_HEAD = {
 
 
 def get_config(config_file):
-    assert config_file.startswith('./configs/'), 'config file setting must start with configs/'
     temp_config_name = path.basename(config_file)
     temp_module_name = path.splitext(temp_config_name)[0]
     config = importlib.import_module("configs.base")

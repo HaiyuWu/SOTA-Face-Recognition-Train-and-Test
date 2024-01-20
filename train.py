@@ -148,9 +148,7 @@ class Train:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
                 self.optimizer.step()
-
                 loss_am.update(loss.item(), 1)
-                self.optimizer.step()
 
                 self.train_logger(step, epoch, loss_am, local_rank)
                 step += 1
@@ -190,16 +188,32 @@ class Train:
 
             return val_acc, val_loss
 
+    def l2_norm(self, input: torch.Tensor, axis=1):
+        norm = torch.norm(input, 2, axis, True)
+        output = torch.div(input, norm)
+        return output, norm
+
     def evaluate_recognition(self, samples, issame, nrof_folds=10):
-        embeddings = np.zeros([len(samples), self.config.embedding_size])
+        embedding_length = len(samples) // 2
+        embeddings = np.zeros([embedding_length, self.config.embedding_size])
+
         with torch.no_grad():
-            for idx in range(0, len(samples), self.config.batch_size):
-                batch = torch.tensor(samples[idx: idx + self.config.batch_size]).to(local_rank)
-                embeddings[
-                    idx : idx + self.config.batch_size
-                ] = self.model.module(batch).cpu()
+            for idx in range(0, embedding_length, self.config.batch_size):
+                batch_flip = torch.tensor(samples[embedding_length + idx: embedding_length + idx + self.config.batch_size])
+                batch_or = torch.tensor(samples[idx: idx + batch_flip.shape[0]])
+                if self.config.add_flip:
+                    embeddings[idx: idx + self.config.batch_size] = self.model(batch_or.to(local_rank)).cpu() + \
+                                                                    self.model(batch_flip.to(local_rank)).cpu().numpy()
+                elif self.config.add_norm:
+                    embeddings_flip, norms_flip = self.l2_norm(self.model(batch_flip.to(local_rank)), axis=1)
+                    embeddings_or, norms_or = self.l2_norm(self.model(batch_or.to(local_rank)), axis=1)
+                    embeddings[idx:idx + self.config.batch_size] = (embeddings_flip * norms_flip +
+                                                                embeddings_or * norms_or).cpu()
+                else:
+                    embeddings[idx: idx + self.config.batch_size] = self.model(batch_or.to(local_rank)).cpu()
                 idx += self.config.batch_size
         normalized_embedding = np.divide(embeddings, np.linalg.norm(embeddings, 2, 1, True))
+
         tpr, fpr, accuracy = verification.evaluate(
             normalized_embedding, issame, nrof_folds
         )

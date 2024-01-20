@@ -41,14 +41,16 @@ class Test:
 
     def evaluate_recognition(self, samples, issame, nrof_folds=10):
         # initialize the embeddings
-        embeddings = np.zeros([len(samples), 512])
+        embeddings = np.zeros([len(samples) // 2, 512])
         with torch.no_grad():
             # extract the features
-            for idx in range(0, len(samples), args.batch_size):
-                batch = torch.tensor(samples[idx: idx + args.batch_size])
+            for idx in range(0, len(samples) // 2, args.batch_size):
+                batch_flip = torch.tensor(samples[len(samples) // 2 + idx: len(samples) // 2 + idx + args.batch_size])
+                batch_or = torch.tensor(samples[idx: idx + batch_flip.shape[0]])
                 embeddings[
                     idx: idx + args.batch_size
-                ] = np.array(self.model.run(None, {'{}'.format(self.input_name): batch.numpy()})).squeeze(0)
+                ] = np.array(self.model.run(None, {'{}'.format(self.input_name): batch_or.numpy()})).squeeze(0) + \
+                    np.array(self.model.run(None, {'{}'.format(self.input_name): batch_flip.numpy()})).squeeze(0)
                 idx += args.batch_size
 
         normalized_embedding = np.divide(embeddings, np.linalg.norm(embeddings, 2, 1, True))

@@ -24,7 +24,7 @@ class Test:
             self.model = self.model.to(self.device)
         self.validation_list = []
         for val_name in args.val_list:
-            dataset, issame = get_val_pair(args.val_source, val_name, rgb=False)
+            dataset, issame = get_val_pair(args.val_source, val_name, rgb=False, mean=0., std=1.)
             self.validation_list.append([dataset, issame, val_name])
 
     def create_model(self, args):
@@ -45,13 +45,14 @@ class Test:
 
     def evaluate_recognition(self, samples, issame, nrof_folds=10):
         self.model.eval()
-        embeddings = np.zeros([len(samples), 512])
+        embeddings = np.zeros([len(samples) // 2, 512])
         with torch.no_grad():
-            for idx in range(0, len(samples), args.batch_size):
-                batch = torch.tensor(samples[idx: idx + args.batch_size])
+            for idx in range(0, len(samples) // 2, args.batch_size):
+                batch_flip = torch.tensor(samples[len(samples) // 2 + idx: len(samples) // 2 + idx + args.batch_size])
+                batch_or = torch.tensor(samples[idx: idx + batch_flip.shape[0]])
                 embeddings[
-                    idx: idx + args.batch_size
-                ] = self.model(batch.to(self.device)).cpu()
+                idx: idx + args.batch_size
+                ] = self.model(batch_or.to(self.device)).cpu()
                 idx += args.batch_size
         tpr, fpr, accuracy = verification.evaluate(
             embeddings, issame, nrof_folds, cosine=True

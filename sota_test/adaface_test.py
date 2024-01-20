@@ -21,7 +21,7 @@ class Test:
             self.model = DataParallel(self.model)
         self.validation_list = []
         for val_name in args.val_list:
-            dataset, issame = get_val_pair(args.val_source, val_name)
+            dataset, issame = get_val_pair(args.val_source, val_name, rgb=False)
             self.validation_list.append([dataset, issame, val_name])
 
     def create_model(self, depth, net_mode, model_path):
@@ -45,16 +45,21 @@ class Test:
 
     def evaluate_recognition(self, samples, issame, nrof_folds=10):
         self.model.eval()
-        embeddings = np.zeros([len(samples), 512])
+        embeddings = np.zeros([len(samples) // 2, 512])
         with torch.no_grad():
-            for idx in range(0, len(samples), args.batch_size):
-                batch = torch.tensor(samples[idx: idx + args.batch_size])
+            for idx in range(0, len(samples) // 2, args.batch_size):
+                batch_flip = torch.tensor(samples[len(samples) // 2 + idx: len(samples) // 2 + idx + args.batch_size])
+                batch_or = torch.tensor(samples[idx: idx + batch_flip.shape[0]])
+                embeddings_flip, norms_flip = self.model(batch_flip.to(self.device))
+                embeddings_or, norms_or = self.model(batch_or.to(self.device))
                 embeddings[
-                    idx: idx + args.batch_size
-                ] = self.model(batch.to(self.device))[0].cpu()
+                idx: idx + args.batch_size
+                ] = (embeddings_flip * norms_flip + embeddings_or * norms_or).cpu()
                 idx += args.batch_size
+
+        normalized_embedding = np.divide(embeddings, np.linalg.norm(embeddings, 2, 1, True))
         tpr, fpr, accuracy = verification.evaluate(
-            embeddings, issame, nrof_folds
+            normalized_embedding, issame, nrof_folds
         )
 
         return round(accuracy.mean(), 5), round(accuracy.std(), 5)
