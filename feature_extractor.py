@@ -47,7 +47,7 @@ if __name__ == "__main__":
         description="test a recognition model."
     )
     parser.add_argument(
-        "--model_path", "-model", help="model path.", type=str
+        "--model_path", "-model_path", help="model path.", type=str
     )
     parser.add_argument(
         "--model", "-model", help="iresnet/vit.", type=str, default="iresnet"
