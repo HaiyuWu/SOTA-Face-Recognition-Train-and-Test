@@ -14,8 +14,8 @@ tornado==6.2
 tqdm==4.66.1
 timm==0.9.12
 tensorboard==2.4.0
-protobuf=3.9.2
-imageio=2.3.0
+protobuf==3.9.2
+imageio==2.3.0
 scikit-learn==1.0.2
 torchvision==0.13.0
 scipy==1.5.4
