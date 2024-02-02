@@ -53,7 +53,7 @@ Extract them at ***datasets*** folder and they are ready-to-use.
 #### Option 2
 All the other training sets could be found at [insightface](https://github.com/deepinsight/insightface/tree/master/recognition/_datasets_).
 After extracting the training set by using [rec2image.py](https://github.com/deepinsight/insightface/blob/0b5cab57b6011a587386bb14ac01ff2d74af1ff9/recognition/common/rec2image.py),
-using [file_path_extractor.py](https://github.com/HaiyuWu/useful_tools/blob/main/file_path_extractor.py) to gather the image paths of the training set.
+using [file_path_extractor.py](./file_path_extractor.py) to gather the image paths of the training set.
 Then run [imagelist2lmdb.py](https://github.com/HaiyuWu/SOTA-FR-train-and-test/blob/main/utils/imagelist2lmdb.py) to finish the training set preparation.
 ```
 python3 utils/imagelist2lmdb.py \
@@ -97,7 +97,7 @@ python3 test.py \
 The trained weights can be downloaded at [model zoo](./model_zoo)
 
 ## Feature extraction
-Using [file_path_extractor.py](https://github.com/HaiyuWu/useful_tools/blob/main/file_path_extractor.py) to collect the paths of the target images, then run following command to extract the features.
+Using [file_path_extractor.py](./file_path_extractor.py) to collect the paths of the target images, then run following command to extract the features.
 ```
 python3 feature_extractor.py \
 --model_path path/of/the/weights \
