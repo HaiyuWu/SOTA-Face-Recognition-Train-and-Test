@@ -44,7 +44,7 @@ class Extractor(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="test a recognition model."
+        description="Image feature extraction."
     )
     parser.add_argument(
         "--model_path", "-model_path", help="model path.", type=str
