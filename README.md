@@ -34,6 +34,7 @@ This repository provides a neat package to efficiently train and test state-of-t
 I suggest you to use Anaconda to better control the environments
 ```
 conda create -n fr_training python=3.8
+conda install -n fr_training pytorch==1.12.0 torchvision==0.13.0 cudatoolkit=11.3 -c pytorch
 conda activate fr_training
 ```
 Then clone the package and use pip to install the dependencies
