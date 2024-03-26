@@ -17,6 +17,7 @@ class Extractor(object):
             print(f"Model will use {torch.cuda.device_count()} GPUs!")
             self.model = DataParallel(self.model)
             self.model = self.model.to(self.device)
+        self.model.eval()
 
     def create_model(self, args):
         if args.model == "iresnet":
