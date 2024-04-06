@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     list2lmdb(
         args.image_list,
-        args.dest,
+        args.destination,
         args.file_name,
         args.workers,
         args.write_frequency
