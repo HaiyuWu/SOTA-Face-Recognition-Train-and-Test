@@ -136,14 +136,14 @@ Thanks for the valuable contribution of [InsightFace](https://github.com/deepins
 ## TODO list
 Functions:
 - [ ] resume from training
-- [ ] Data Augmentation for AdaFace
+- x] Data Augmentation for AdaFace
 - [ ] optimizer options
 
 Methods:
 - [ ] Circle loss
 
 Backbones:
-- [ ] irse
+- [x] irse
 
 Others:
 - [ ] test on IJB-B, IJB-C, XQLFW, SLLFW, MLFW, TALFW, DoppelVer

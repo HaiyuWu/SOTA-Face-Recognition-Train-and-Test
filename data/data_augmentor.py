@@ -1,3 +1,6 @@
+########################################################################
+# https://github.com/mk-minchul/AdaFace/blob/master/dataset/augmenter.py
+########################################################################
 import numpy as np
 import cv2
 from torchvision.transforms import functional as F
