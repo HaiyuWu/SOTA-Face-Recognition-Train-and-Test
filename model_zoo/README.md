@@ -4,17 +4,16 @@ Models are trained with ResNet100 backbone and three (**MS1MV2, WebFace4M, and G
 **All the models here are trained with RBG images and ```mean=0.5, std=0.5``` image normalization, which is different from the setting of the original AdaFace and MagFace.
 Also, the accuracies are calculated with the merged features of the original and horizontally flipped images, where the original MagFace does not do it. These could cause the difference of the paper-reported accuracy and the accuracy in these tables.** 
 
-| MS1MV2                      |  Dataset  |  LFW  | CFP-FP | CPLFW | AgeDB-30 | CALFW |                                             Weights                                              |
-|-----------------------------|:---------:|:-----:|:------:|:-----:|:--------:|:-----:|:------------------------------------------------------------------------------------------------:|
-| CosFace-R100 (m=0.35)       |  MS1MV2   | 99.75 | 98.41  | 93.25 |  98.33   | 95.93 | [Gdrive](https://drive.google.com/file/d/1FzsD117ESm7RDXE2DMvoQmAdkL7W2sa0/view?usp=drive_link)  |
-| SphereFace-R100 (m=1.7)     |  MS1MV2   | 99.83 | 98.40  | 92.67 |  98.23   | 96.07 | [Gdrive](https://drive.google.com/file/d/1vCMSDF65bslXcU0kxCadBrdW48v-7oPt/view?usp=drive_link)  |
-| ArcFace-R100 (m=0.5)        |  MS1MV2   | 99.80 | 98.49  | 93.35 |  98.00   | 96.05 | [Gdrive](https://drive.google.com/file/d/1MH2eCU_II2nUtkDHgyD0Scxua1MDZtdE/view?usp=drive_link)  |
-| ArcFace-R100 (combined)     |  MS1MV2   | 99.80 | 98.50  | 93.17 |  98.07   | 96.18 | [Gdrive](https://drive.google.com/file/d/1Uznh1O0EJoD34A3YchvI7FQ1G67rNGKP/view?usp=drive_link)  |
-| CurricularFace-R100 (m=0.5) |  MS1MV2   | 99.78 | 98.44  | 92.95 |  98.05   | 96.08 | [Gdrive](https://drive.google.com/file/d/1OPTjbvgBnVBVrttJKvOzevG9sNQXjA1j/view?usp=drive_link)  |
-| CircleLoss-R100             |  MS1MV2   |   -   |   -    |   -   |    -     |   -   |                                               TODO                                               |
-| MagFace-R100                |  MS1MV2   | 99.82 | 98.21  | 92.67 |  98.15   | 96.13 | [Gdrive](https://drive.google.com/file/d/1h_V93Sc1NB5eLW26-pB7KCB7-BSCYHZj/view?usp=drive_link)  |
-| AdaFace-R100 (m=0.4)        |  MS1MV2   | 99.82 | 98.63  | 93.05 |  98.20   | 96.15 | [Gdrive](https://drive.google.com/file/d/1a0BkAUwFC8O_sR2cW0NOM93zgOKBWbsr/view?usp=drive_link)  |
-| UniFace-R100 (m=0.5)        |  MS1MV2   | 99.78 | 98.49  | 93.28 |  98.02   | 96.10 | [Gdrive](https://drive.google.com/file/d/1TgO7RgXPoMoM6ESIj7h09WYhotou47vD/view?usp=drive_link)  |
+| MS1MV2                         |  Dataset  |  LFW  | CFP-FP | CPLFW | AgeDB-30 | CALFW |                                             Weights                                              |
+|--------------------------------|:---------:|:-----:|:------:|:-----:|:--------:|:-----:|:------------------------------------------------------------------------------------------------:|
+| CosFace-R100 (m=0.35)[6]       |  MS1MV2   | 99.75 | 98.41  | 93.25 |  98.33   | 95.93 | [Gdrive](https://drive.google.com/file/d/1FzsD117ESm7RDXE2DMvoQmAdkL7W2sa0/view?usp=drive_link)  |
+| SphereFace-R100 (m=1.7)[7]     |  MS1MV2   | 99.83 | 98.40  | 92.67 |  98.23   | 96.07 | [Gdrive](https://drive.google.com/file/d/1vCMSDF65bslXcU0kxCadBrdW48v-7oPt/view?usp=drive_link)  |
+| ArcFace-R100 (m=0.5)[1]        |  MS1MV2   | 99.80 | 98.49  | 93.35 |  98.00   | 96.05 | [Gdrive](https://drive.google.com/file/d/1MH2eCU_II2nUtkDHgyD0Scxua1MDZtdE/view?usp=drive_link)  |
+| ArcFace-R100 (combined)[1]     |  MS1MV2   | 99.80 | 98.50  | 93.17 |  98.07   | 96.18 | [Gdrive](https://drive.google.com/file/d/1Uznh1O0EJoD34A3YchvI7FQ1G67rNGKP/view?usp=drive_link)  |
+| CurricularFace-R100 (m=0.5)[2] |  MS1MV2   | 99.78 | 98.44  | 92.95 |  98.05   | 96.08 | [Gdrive](https://drive.google.com/file/d/1OPTjbvgBnVBVrttJKvOzevG9sNQXjA1j/view?usp=drive_link)  |
+| MagFace-R100[3]                |  MS1MV2   | 99.82 | 98.21  | 92.67 |  98.15   | 96.13 | [Gdrive](https://drive.google.com/file/d/1h_V93Sc1NB5eLW26-pB7KCB7-BSCYHZj/view?usp=drive_link)  |
+| AdaFace-R100 (m=0.4)[4]        |  MS1MV2   | 99.82 | 98.63  | 93.05 |  98.20   | 96.15 | [Gdrive](https://drive.google.com/file/d/1a0BkAUwFC8O_sR2cW0NOM93zgOKBWbsr/view?usp=drive_link)  |
+| UniFace-R100 (m=0.5)[5]        |  MS1MV2   | 99.78 | 98.49  | 93.28 |  98.02   | 96.10 | [Gdrive](https://drive.google.com/file/d/1TgO7RgXPoMoM6ESIj7h09WYhotou47vD/view?usp=drive_link)  |
 
 
 |          WebFace4M          |  Dataset  |  LFW  | CFP-FP | CPLFW | AgeDB-30 | CALFW |                                             Weights                                             |
@@ -33,3 +32,13 @@ Also, the accuracies are calculated with the merged features of the original and
 | MagFace-R100                | Glint360k | 99.82 | 99.14  | 94.47 |  98.20   | 96.15 | [Gdrive](https://drive.google.com/file/d/1xg7CBPhatTE1BwmozGIOhI1bfGwWiyUP/view?usp=drive_link) |
 | AdaFace-R100 (m=0.4)        | Glint360k | 99.78 | 99.22  | 95.05 |  98.35   | 96.07 | [Gdrive](https://drive.google.com/file/d/1YRqrXGOao5F3mVQXZ90dt-WLEICNqbYY/view?usp=drive_link) |
 | UniFace-R100 (m=0.5)        | Glint360k | 99.73 | 99.09  | 94.58 |  98.22   | 96.18 | [Gdrive](https://drive.google.com/file/d/1r_LA7F0rmga_ip1MDtoue5lZYBFbtg1-/view?usp=drive_link) |
+
+
+# References
+- [1] Deng, Jiankang, Jia Guo, Niannan Xue, and Stefanos Zafeiriou. "Arcface: Additive angular margin loss for deep face recognition." CVPR2019.
+- [2] Huang, Yuge, Yuhan Wang, Ying Tai, Xiaoming Liu, Pengcheng Shen, Shaoxin Li, Jilin Li, and Feiyue Huang. "Curricularface: adaptive curriculum learning loss for deep face recognition." CVPR2020.
+- [3] Meng, Qiang, Shichao Zhao, Zhida Huang, and Feng Zhou. "Magface: A universal representation for face recognition and quality assessment." CVPR2021.
+- [4] Kim, Minchul, Anil K. Jain, and Xiaoming Liu. "Adaface: Quality adaptive margin for face recognition." CVPR2022.
+- [5] Zhou, Jiancan, Xi Jia, Qiufu Li, Linlin Shen, and Jinming Duan. "UniFace: Unified Cross-Entropy Loss for Deep Face Recognition." ICCV2023.
+- [6] Wang, Hao, Yitong Wang, Zheng Zhou, Xing Ji, Dihong Gong, Jingchao Zhou, Zhifeng Li, and Wei Liu. "Cosface: Large margin cosine loss for deep face recognition." CVPR2018.
+- [7] Liu, Weiyang, Yandong Wen, Zhiding Yu, Ming Li, Bhiksha Raj, and Le Song. "Sphereface: Deep hypersphere embedding for face recognition." CVPR2017.
