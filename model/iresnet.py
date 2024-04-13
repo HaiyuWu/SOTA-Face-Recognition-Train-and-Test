@@ -25,8 +25,36 @@ def conv1x1(in_planes, out_planes, stride=1):
                      bias=False)
 
 
+class SEModule(nn.Module):
+    """ SE block
+    """
+    def __init__(self, channels, reduction):
+        super(SEModule, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc1 = nn.Conv2d(channels, channels // reduction,
+                          kernel_size=1, padding=0, bias=False)
+
+        nn.init.xavier_uniform_(self.fc1.weight.data)
+
+        self.relu = nn.ReLU(inplace=True)
+        self.fc2 = nn.Conv2d(channels // reduction, channels,
+                          kernel_size=1, padding=0, bias=False)
+
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        module_input = x
+        x = self.avg_pool(x)
+        x = self.fc1(x)
+        x = self.relu(x)
+        x = self.fc2(x)
+        x = self.sigmoid(x)
+
+        return module_input * x
+
+
 class IBasicBlock(nn.Module):
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, mode="normal"):
         super(IBasicBlock, self).__init__()
         self.bn1 = nn.BatchNorm2d(inplanes, eps=1e-05,)
         self.conv1 = conv3x3(inplanes, planes)
@@ -36,6 +64,9 @@ class IBasicBlock(nn.Module):
         self.bn3 = nn.BatchNorm2d(planes, eps=1e-05,)
         self.downsample = downsample
         self.stride = stride
+        self.attn = None
+        if mode == "se":
+            self.attn = SEModule(planes, 16)
 
     def forward_impl(self, x):
         identity = x
@@ -47,6 +78,8 @@ class IBasicBlock(nn.Module):
         out = self.bn3(out)
         if self.downsample is not None:
             identity = self.downsample(x)
+        if self.attn is not None:
+            identity = self.attn(identity)
         out += identity
         return out
 
@@ -60,12 +93,12 @@ class IBasicBlock(nn.Module):
 class IResNet(nn.Module):
     def __init__(self,
                  block, layers, dropout=0.4, num_features=512, zero_init_residual=False,
-                 groups=1, width_per_group=64, fp16=False):
+                 groups=1, fp16=False, mode="normal"):
         super(IResNet, self).__init__()
         self.extra_gflops = 0.0
         self.fp16 = fp16
         self.inplanes = 64
-
+        self.mode = mode
         self.groups = groups
         self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(self.inplanes, eps=1e-05)
@@ -111,7 +144,7 @@ class IResNet(nn.Module):
             )
         layers = []
         layers.append(
-            block(self.inplanes, planes, stride, downsample))
+            block(self.inplanes, planes, stride, downsample, mode=self.mode))
         self.inplanes = planes
         for _ in range(1, blocks):
             layers.append(
