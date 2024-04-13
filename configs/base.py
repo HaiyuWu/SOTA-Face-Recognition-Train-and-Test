@@ -27,3 +27,6 @@ config.sample_rate = 1.0
 config.mask = None
 config.add_flip = True
 config.add_norm = False
+config.label_map = None
+config.augment = False
+config.mode = "normal"
