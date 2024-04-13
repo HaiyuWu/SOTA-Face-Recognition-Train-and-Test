@@ -10,10 +10,11 @@ import threading
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from .dist import DistributedSampler, get_dist_info
+from .data_augmentor import Augmenter
 
 
 class LMDB(Dataset):
-    def __init__(self, db_path, transform=None, mask=None):
+    def __init__(self, db_path, transform=None, mask=None, label_map=None, augment=False):
         self.db_path = db_path
         self.env = lmdb.open(
             db_path,
@@ -33,6 +34,8 @@ class LMDB(Dataset):
         if mask is not None:
             self.mask = np.load(mask)
 
+        self.label_map = None if label_map is None else np.load(label_map, allow_pickle=True).item()
+        self.augmenter = None if not augment else Augmenter(0.3, 0.3, 0.3)
         self.transform = transform
 
     def __getitem__(self, index):
@@ -52,7 +55,13 @@ class LMDB(Dataset):
 
         # load label
         target = unpacked[1]
-
+        if self.label_map is not None:
+            try:
+                target = self.label_map[str(target)]
+            except KeyError:
+                pass
+        if self.augmenter is not None:
+            img = self.augmenter.augment(img)
         if self.transform is not None:
             img = self.transform(img)
 
@@ -76,7 +85,7 @@ class LMDBDataLoader(object):
             ]
         )
 
-        self._dataset = LMDB(config.train_source, transform, config.mask)
+        self._dataset = LMDB(config.train_source, transform, config.mask, config.label_map, config.augment)
         rank, world_size = get_dist_info()
         samplers = DistributedSampler(self._dataset, num_replicas=world_size, rank=rank, shuffle=True, seed=seed)
 
