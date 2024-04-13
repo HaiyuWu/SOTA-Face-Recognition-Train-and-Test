@@ -136,7 +136,7 @@ Thanks for the valuable contribution of [InsightFace](https://github.com/deepins
 ## TODO list
 Functions:
 - [ ] resume from training
-- x] Data Augmentation for AdaFace
+- [x] Data Augmentation for AdaFace
 - [ ] optimizer options
 
 Methods:
