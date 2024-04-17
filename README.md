@@ -17,6 +17,7 @@ This repository provides a neat package to efficiently train and test state-of-t
 
 <!--ts-->
 - [Dataset preparation](#dataset-preparation)
+  * [Hadrian and Eclipse](#hadrian-and-eclipse)
   * [Training sets](#training-sets)
   * [Test sets](#test-sets)
 - [Train your own model](#train-your-own-model)
@@ -45,6 +46,19 @@ pip install -r requirements.txt
 ```
 
 ## Dataset preparation
+### Hadrian and Eclipse
+Hadrian and Eclipse are face exposure and facial hair oriented test sets for face recognition model performance evaluation. 
+You can download the dataset via [GDrive](https://drive.google.com/file/d/1w-YZr9yNoC0pJ4Uc0wcN4p0E9zfHfcJm/view?usp=drive_link). You can follow [Test sets](#test-sets) to prepare the dataset.
+If you find Hadrian and Eclipse help any of your project, please cite
+```
+TODO
+```
+The data used to create these two datasets are fully based on the commercial version of [MORPH5](https://uncw.edu/myuncw/research/innovation-commercialization/technology-portfolio/morph).
+We sincerely and heartfelt appreciate the invaluable support from [Prof. Karl Ricanek Jr.](https://people.uncw.edu/ricanekk/) and [University of North Carolina Wilmington](https://uncw.edu/) (UNCW),
+and granted us permission to redistribute the partial MORPH data (Hadrian and Eclipse) for **FREE** research usage.  
+***You can get the full academic and commercial MORPH datasets at [official webpage](https://uncw.edu/myuncw/research/innovation-commercialization/technology-portfolio/morph)***.
+
+
 ### Training sets
 #### Option 1
 You can directly download the compressed [MS1MV2](https://drive.google.com/file/d/10MaJjn3wvTcDCoXJdNmhMeAsRHfPuM-_/view?usp=drive_link)
@@ -64,7 +78,7 @@ python3 utils/imagelist2lmdb.py \
 ```
 ### Test sets
 LFW, CFP-FP, CALFW, CPLFW, AgeDB-30 can be downloaded [here](https://drive.google.com/file/d/1l7XmqzIZKdKVqu0cOS2EI0bL_9_-wIrc/view?usp=drive_link).
-Then you can simply run [prepare_test_images.py](https://github.com/HaiyuWu/SOTA-FR-train-and-test/blob/main/utils/prepare_test_images.py) to get datasets ready to test
+Extract the compressed file then you can simply run [prepare_test_images.py](https://github.com/HaiyuWu/SOTA-FR-train-and-test/blob/main/utils/prepare_test_images.py) to get datasets ready to test
 ```
 python3 utils/prepare_test_images.py \
 --xz_folder folder/contains/xz/files
