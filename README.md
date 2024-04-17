@@ -53,7 +53,7 @@ If you find Hadrian and Eclipse help any of your projects, please cite the follo
 ```
 @article{GoldilocksFRTestSet2024,
   title={What is a Goldilocks Face Verification Test Set?},
-  author={Wu, Haiyu and Tian, Sicong and Bhatta, Aman and Gutierrez, Jacob and Bezold, Grace and Argueta, Genesis and Ricanek, Karl and King, Michael C. and Bowyer, Kevin W.},
+  author={Wu, Haiyu and Tian, Sicong and Bhatta, Aman and Gutierrez, Jacob and Bezold, Grace and Argueta, Genesis and Ricanek Jr., Karl and King, Michael C. and Bowyer, Kevin W.},
   year={2024}
 }
 ```
