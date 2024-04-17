@@ -47,15 +47,19 @@ pip install -r requirements.txt
 
 ## Dataset preparation
 ### Hadrian and Eclipse
-Hadrian and Eclipse are face exposure and facial hair oriented test sets for face recognition model performance evaluation. 
+Hadrian and Eclipse are face recognition test sets oriented around facial hairstyles and face exposure levels, respectively. 
 You can download both datasets via [GDrive](https://drive.google.com/file/d/1w-YZr9yNoC0pJ4Uc0wcN4p0E9zfHfcJm/view?usp=drive_link). You can follow [Test sets](#test-sets) to prepare the dataset.
 If you find Hadrian and Eclipse help any of your projects, please cite the following reference:
 ```
-TODO
+@article{GoldilocksFRTestSet2024,
+  title={What is a Goldilocks Face Verification Test Set?},
+  author={Wu, Haiyu and Tian, Sicong and Bhatta, Aman and Gutierrez, Jacob and Bezold, Grace and Argueta, Genesis and Ricanek, Karl and King, Michael C. and Bowyer, Kevin W.},
+  year={2024}
+}
 ```
-The data used to create these two datasets are fully based on the commercial version of [MORPH5](https://uncw.edu/myuncw/research/innovation-commercialization/technology-portfolio/morph).
-We sincerely and heartfelt appreciate the invaluable support from [Prof. Karl Ricanek Jr.](https://people.uncw.edu/ricanekk/) and [University of North Carolina Wilmington](https://uncw.edu/) (UNCW),
-and granted us permission to redistribute the partial MORPH data (Hadrian and Eclipse) for **FREE** research usage.  
+The data used in the Hadrian and Eclipse datasets are fully based on the commercial version of [MORPH5](https://uncw.edu/myuncw/research/innovation-commercialization/technology-portfolio/morph).
+We sincerely and heartfelt appreciate the invaluable support from [Prof. Karl Ricanek Jr.](https://people.uncw.edu/ricanekk/) and [University of North Carolina Wilmington](https://uncw.edu/) (UNCW).
+UNCW has granted permission to use the images in Hadrian and Eclipse **FREE** for research purposes.
 ***You can get the full academic and commercial MORPH datasets at [official webpage](https://uncw.edu/myuncw/research/innovation-commercialization/technology-portfolio/morph)***.
 
 
@@ -93,9 +97,9 @@ torchrun --nproc_per_node=4 train.py --config_file ./configs/arcface_r100.py
 ```
 You can change the settings at [configs](https://github.com/HaiyuWu/SOTA-FR-train-and-test/tree/main/configs).
 
-Note that, AdaFace and MagFace use BGR channel to train the model, but this framework consistently use RGB to train the model. Also, for MagFace, it uses ```mean=0.``` and ```std=1.``` to normalize the images, but this framework uses ```mean=0.5``` and ```std=0.5``` to train and test all the methods.
+Note that, AdaFace and MagFace use BGR channel to train the model, but this framework consistently uses RGB to train the model. Also, for MagFace, it uses ```mean=0.``` and ```std=1.``` to normalize the images, but this framework uses ```mean=0.5``` and ```std=0.5``` to train and test all the methods.
 
-If you want to train the model align with the original way, you can change the [data_loader_train_lmdb.py](./data/data_loader_train_lmdb.py) file.
+If you want to train the model align with the training in the original GitHub repository, you can change the [data_loader_train_lmdb.py](./data/data_loader_train_lmdb.py) file.
 
 ## Test your own model
 For CosFace, SphereFace, ArcFace, CurricularFace, UniFace, adding ```--add_flip``` option to test. For AdaFace, adding ```--add_norm``` option to test.
