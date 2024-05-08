@@ -48,7 +48,8 @@ pip install -r requirements.txt
 ## Dataset preparation
 ### Hadrian and Eclipse
 Hadrian and Eclipse are face recognition test sets oriented around facial hairstyles and face exposure levels, respectively. 
-You can download both datasets via [GDrive (TBD)](). You can follow [Test sets](#test-sets) to prepare the dataset.
+You can download both datasets via [GDrive](https://drive.google.com/file/d/1Q23Ze35jzzyR8k9h532gXdEpUJLC0SCR/view?usp=sharing). 
+To get the password, you need to fill this [form](https://forms.gle/6Zuw9c6sdkU27hxN6), then you can follow [Test sets](#test-sets) to prepare the dataset.
 If you find Hadrian and Eclipse help any of your projects, please cite the following reference:
 ```
 @article{GoldilocksFRTestSet2024,
