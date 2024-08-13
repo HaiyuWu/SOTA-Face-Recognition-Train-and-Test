@@ -21,7 +21,7 @@ class ImageList(ImageFolder):
         return len(self.samples)
 
     def __getitem__(self, index):
-        img = Image.open(self.samples[index]).convert("RGB)
+        img = Image.open(self.samples[index]).convert("RGB")
         return self.transform(img), self.samples[index]
 
 
