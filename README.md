@@ -65,7 +65,7 @@ UNCW has granted permission to use the images in Hadrian and Eclipse **FREE** fo
 
 If you have any problems using Hadrian and Eclipse, please contact: [cvrl@nd.edu](mailto:cvrl@nd.edu)
 #### Convert to .bin file
-If you just want to use the .bin version, using [use xz2bin.py]("./utils/xz2bin.py") to convert. 
+If you just want to use the .bin version, using [xz2bin.py](https://github.com/HaiyuWu/SOTA-Face-Recognition-Train-and-Test/blob/main/utils/xz2bin.py) to convert. 
 ### Training sets
 #### Option 1
 You can directly download the compressed [MS1MV2](https://drive.google.com/file/d/10MaJjn3wvTcDCoXJdNmhMeAsRHfPuM-_/view?usp=drive_link)
