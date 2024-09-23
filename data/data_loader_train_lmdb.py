@@ -6,7 +6,9 @@ import six
 import torch
 from PIL import Image
 import queue as Queue
+import pandas as pd
 import threading
+from collections import defaultdict
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from .dist import DistributedSampler, get_dist_info
@@ -15,20 +17,30 @@ from .data_augmentor import Augmenter
 
 class LMDB(Dataset):
     def __init__(self, db_path, transform=None, mask=None, label_map=None, augment=False):
-        self.db_path = db_path
-        self.env = lmdb.open(
-            db_path,
-            subdir=path.isdir(db_path),
-            readonly=True,
-            lock=False,
-            readahead=False,
-            meminit=False,
-        )
+        self.ext = db_path.split(".")[-1]
+        if self.ext == "lmdb":
+            self.db_path = db_path
+            self.env = lmdb.open(
+                db_path,
+                subdir=path.isdir(db_path),
+                readonly=True,
+                lock=False,
+                readahead=False,
+                meminit=False,
+            )
 
-        with self.env.begin(write=False) as txn:
-            self.length = msgpack.loads(txn.get(b"__len__"))
-            self.keys = msgpack.loads(txn.get(b"__keys__"))
-            self.classnum = msgpack.loads(txn.get(b"__classnum__"))
+            with self.env.begin(write=False) as txn:
+                self.length = msgpack.loads(txn.get(b"__len__"))
+                self.keys = msgpack.loads(txn.get(b"__keys__"))
+                self.classnum = msgpack.loads(txn.get(b"__classnum__"))
+        elif self.ext == "txt":
+            image_names = pd.read_csv(db_path, header=None)
+            self.samples = np.asarray(image_names).squeeze()
+            self.targets = self.get_labels()
+            self.classnum = np.max(self.targets) + 1
+            self.length = len(self.samples)
+        else:
+            AssertionError(f"Only support .lmdb and .txt file, but get a .{self.ext} instead.")
 
         self.mask = None
         if mask is not None:
@@ -39,22 +51,27 @@ class LMDB(Dataset):
         self.transform = transform
 
     def __getitem__(self, index):
-        env = self.env
         if self.mask is not None:
             index = self.mask[index]
-        with env.begin(write=False) as txn:
-            byteflow = txn.get(self.keys[index])
-        unpacked = msgpack.loads(byteflow)
 
-        # load image
-        imgbuf = unpacked[0]
-        buf = six.BytesIO()
-        buf.write(imgbuf)
-        buf.seek(0)
-        img = Image.open(buf).convert("RGB")
+        if self.ext == "lmdb":
+            env = self.env
+            with env.begin(write=False) as txn:
+                byteflow = txn.get(self.keys[index])
+            unpacked = msgpack.loads(byteflow)
 
-        # load label
-        target = unpacked[1]
+            # load image
+            imgbuf = unpacked[0]
+            buf = six.BytesIO()
+            buf.write(imgbuf)
+            buf.seek(0)
+            img = Image.open(buf).convert("RGB")
+            # load label
+            target = unpacked[1]
+        if self.ext == "txt":
+            img = Image.open(self.samples[index]).convert("RGB")
+            target = self.targets[index]
+
         if self.label_map is not None:
             try:
                 target = self.label_map[str(target)]
@@ -72,6 +89,16 @@ class LMDB(Dataset):
             return self.length
         else:
             return len(self.mask)
+
+    def get_labels(self):
+        id_dict = defaultdict(int)
+        for im in self.samples:
+            identity = im.split("/")[-2]
+            id_dict[identity] += 1
+        labels = []
+        for i, (k, value) in enumerate(id_dict.items()):
+            labels += [i] * value
+        return labels
 
 
 class LMDBDataLoader(object):
