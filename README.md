@@ -83,6 +83,12 @@ python3 utils/imagelist2lmdb.py \
 --destination ./datasets
 --file_name dataset/name
 ```
+
+#### Option 3
+We support using .txt file to train the model. Using [file_path_extractor.py](./file_path_extractor.py) to get all the image paths and replacing the path in config file.
+```python
+config.train_source = "path/to/.txt/file"
+```
 ### Test sets
 LFW, CFP-FP, CALFW, CPLFW, AgeDB-30 can be downloaded [here](https://drive.google.com/file/d/1l7XmqzIZKdKVqu0cOS2EI0bL_9_-wIrc/view?usp=drive_link).
 Extract the compressed file then you can simply run [prepare_test_images.py](https://github.com/HaiyuWu/SOTA-FR-train-and-test/blob/main/utils/prepare_test_images.py) to get datasets ready to test
