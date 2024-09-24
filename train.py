@@ -6,9 +6,9 @@ import torch
 from time import time
 from torch import optim, distributed
 from torch.utils.data import DataLoader
-# from lr_scheduler import PolynomialLRWarmup
 from torch.utils.tensorboard import SummaryWriter
 from data import LMDBDataLoader, get_val_pair, setup_seed
+from lr_scheduler import PolyScheduler
 from model import iresnet, PartialFC_V2, get_vit
 import verification
 from utils import *
@@ -53,11 +53,12 @@ class Train:
         class_num = self.dataset.class_num()
 
         if self.config.model == "iresnet":
-            self.model = iresnet(self.config.depth, fp16=self.config.fp16).to(local_rank)
+            self.model = iresnet(self.config.depth, fp16=self.config.fp16, mode=self.config.mode).to(local_rank)
         elif self.config.model == "vit":
             self.model = get_vit(self.config.depth).to(local_rank)
 
         self.head = self.config.recognition_head
+
         paras_only_bn, paras_wo_bn = separate_bn_param(self.model)
 
         # only write at main process
@@ -82,18 +83,46 @@ class Train:
             self.head, self.config.embedding_size, class_num, self.config.sample_rate, self.config.fp16
         ).to(local_rank)
 
-        self.optimizer = optim.SGD(
-            [
-                {"params": paras_wo_bn, "weight_decay": self.config.weight_decay},
-                {
-                    "params": self.head.parameters(),
-                    "weight_decay": self.config.weight_decay,
-                },
-                {"params": paras_only_bn},
-            ],
-            lr=self.config.lr,
-            momentum=self.config.momentum,
-        )
+        if self.config.optimizer == "sgd":
+            self.optimizer = optim.SGD(
+                [
+                    {"params": paras_wo_bn, "weight_decay": self.config.weight_decay},
+                    {
+                        "params": self.head.parameters(),
+                        "weight_decay": self.config.weight_decay,
+                    },
+                    {"params": paras_only_bn},
+                ],
+                lr=self.config.lr,
+                momentum=self.config.momentum,
+            )
+        elif self.config.optimizer == "adamw":
+            self.optimizer = optim.AdamW(
+                params=[
+                    {"params": self.model.parameters()},
+                    {
+                        "params": self.head.parameters(),
+                    },
+                ],
+                lr=self.config.lr,
+                weight_decay=self.config.weight_decay,
+            )
+        else:
+            raise
+
+        total_batch = self.config.batch_size * world_size
+        if self.config.scheduler:
+            print("PolyScheduler is used!")
+            warmup_step = self.config.num_ims // total_batch * self.config.warmup_epoch
+            total_step = self.config.num_ims // total_batch * self.config.epochs
+
+            self.lr_scheduler = PolyScheduler(
+                optimizer=self.optimizer,
+                base_lr=self.config.lr,
+                max_steps=total_step,
+                warmup_steps=warmup_step,
+                last_epoch=-1
+            )
 
         self.validation_list = []
         for val_name in config.val_list:
@@ -102,7 +131,6 @@ class Train:
             dataset, issame = get_val_pair(self.config.val_source, val_name)
             self.validation_list.append([dataset, issame, val_name])
 
-        total_batch = self.config.batch_size * world_size
         self.train_logger = TrainLogger(
             total_batch,
             self.config.frequency_log,
@@ -127,7 +155,7 @@ class Train:
         for epoch in range(self.config.epochs):
             if isinstance(self.train_loader, DataLoader):
                 self.train_loader.sampler.set_epoch(epoch)
-            if epoch + 1 in self.config.reduce_lr:
+            if not self.config.scheduler and epoch + 1 in self.config.reduce_lr:
                 self.reduce_lr()
 
             for idx, data in enumerate(self.train_loader):
@@ -147,7 +175,10 @@ class Train:
                     torch.nn.utils.clip_grad_norm_(self.model.parameters(), 5)
                     self.optimizer.step()
                     self.optimizer.zero_grad()
-                self.optimizer.step()
+                if self.config.scheduler:
+                    self.lr_scheduler.step()
+                else:
+                    self.optimizer.step()
                 loss_am.update(loss.item(), 1)
 
                 self.train_logger(step, epoch, loss_am, local_rank)
@@ -203,7 +234,7 @@ class Train:
                 batch_or = torch.tensor(samples[idx: idx + batch_flip.shape[0]])
                 if self.config.add_flip:
                     embeddings[idx: idx + self.config.batch_size] = self.model(batch_or.to(local_rank)).cpu() + \
-                                                                    self.model(batch_flip.to(local_rank)).cpu().numpy()
+                                                                    self.model(batch_flip.to(local_rank)).cpu()
                 elif self.config.add_norm:
                     embeddings_flip, norms_flip = self.l2_norm(self.model(batch_flip.to(local_rank)), axis=1)
                     embeddings_or, norms_or = self.l2_norm(self.model(batch_or.to(local_rank)), axis=1)

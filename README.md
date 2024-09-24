@@ -163,20 +163,26 @@ Thanks for the valuable contribution of [InsightFace](https://github.com/deepins
 ## TODO list
 Functions:
 - [ ] resume from training
-- [x] Data Augmentation for AdaFace
-- [ ] optimizer options
 
 Methods:
 - [ ] Circle loss
-
-Backbones:
-- [x] irse
 
 Others:
 - [ ] test on IJB-B, IJB-C, XQLFW, SLLFW, MLFW, TALFW, DoppelVer
 - [ ] UniFace pretrained test
 - [ ] Published papers
 - [ ] references
+
+## Reference
+If you find this repo is helpful, please cite our paper.
+```
+@article{wu2024identity,
+  title={Identity Overlap Between Face Recognition Train/Test Data: Causing Optimistic Bias in Accuracy Measurement},
+  author={Wu, Haiyu and Tian, Sicong and Gutierrez, Jacob and Bhatta, Aman and {\"O}zt{\"u}rk, Ka{\u{g}}an and Bowyer, Kevin W},
+  journal={arXiv preprint arXiv:2405.09403},
+  year={2024}
+}
+```
 
 ## License
 [MIT license](./license.md)
