@@ -168,10 +168,14 @@ Methods:
 - [ ] Circle loss
 
 Others:
-- [ ] test on IJB-B, IJB-C, XQLFW, SLLFW, MLFW, TALFW, DoppelVer
-- [ ] UniFace pretrained test
-- [ ] Published papers
-- [ ] references
+- [x] Published papers
+- [x] references
+## Publications
+[1] Identity Overlap Between Face Recognition Train/Test Data: Causing Optimistic Bias in Accuracy Measurement
+
+[2] What is a Goldilocks Face Verification Test Set?
+
+[3] Vec2Face: Scaling Face Dataset Generation with Loosely Constrained Vectors
 
 ## Reference
 If you find this repo is helpful, please cite our paper.
