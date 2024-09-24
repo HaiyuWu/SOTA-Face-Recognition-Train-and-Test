@@ -13,8 +13,19 @@ This repository provides a neat package to efficiently train and test state-of-t
 - MagFace (**CVPR21**) :white_check_mark:
 - AdaFace (**CVPR22**) :white_check_mark:
 - UniFace (**ICCV23**) :white_check_mark:
-## Table of contents
 
+## Citation
+If you find this repo is helpful, please cite our paper.
+```
+@article{wu2024identity,
+  title={Identity Overlap Between Face Recognition Train/Test Data: Causing Optimistic Bias in Accuracy Measurement},
+  author={Wu, Haiyu and Tian, Sicong and Gutierrez, Jacob and Bhatta, Aman and {\"O}zt{\"u}rk, Ka{\u{g}}an and Bowyer, Kevin W},
+  journal={arXiv preprint arXiv:2405.09403},
+  year={2024}
+}
+```
+
+## Table of contents
 <!--ts-->
 - [Dataset preparation](#dataset-preparation)
   * [Hadrian and Eclipse](#hadrian-and-eclipse)
@@ -28,7 +39,6 @@ This repository provides a neat package to efficiently train and test state-of-t
   * [Model Weights](#model-weights)
   * [Testing](#testing)
 - [Publications](#publications)
-- [Citation](#citation)
 - [Acknowledgement](#acknowledgement)
 - [License](#license)
   <!--te-->
@@ -168,17 +178,6 @@ Thanks for the valuable contribution of [InsightFace](https://github.com/deepins
 [2] What is a Goldilocks Face Verification Test Set?
 
 [3] Vec2Face: Scaling Face Dataset Generation with Loosely Constrained Vectors
-
-## Citation
-If you find this repo is helpful, please cite our paper.
-```
-@article{wu2024identity,
-  title={Identity Overlap Between Face Recognition Train/Test Data: Causing Optimistic Bias in Accuracy Measurement},
-  author={Wu, Haiyu and Tian, Sicong and Gutierrez, Jacob and Bhatta, Aman and {\"O}zt{\"u}rk, Ka{\u{g}}an and Bowyer, Kevin W},
-  journal={arXiv preprint arXiv:2405.09403},
-  year={2024}
-}
-```
 
 ## TODO list
 Functions:
