@@ -27,8 +27,8 @@ This repository provides a neat package to efficiently train and test state-of-t
 - [Test SOTA models](#test-sota-models)
   * [Model Weights](#model-weights)
   * [Testing](#testing)
-- [Citation](#citation)
 - [Publications](#publications)
+- [Citation](#citation)
 - [Acknowledgement](#acknowledgement)
 - [License](#license)
   <!--te-->
