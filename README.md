@@ -186,8 +186,5 @@ Functions:
 Methods:
 - [ ] Circle loss
 
-Others:
-- [x] Published papers
-- [x] references
 ## License
 [MIT license](./license.md)
