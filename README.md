@@ -28,7 +28,7 @@ This repository provides a neat package to efficiently train and test state-of-t
   * [Model Weights](#model-weights)
   * [Testing](#testing)
 - [Reference](#reference)
-- [Publications](#publications)
+- [Citation](#citation)
 - [Acknowledgement](#acknowledgement)
 - [License](#license)
   <!--te-->
@@ -169,7 +169,7 @@ Thanks for the valuable contribution of [InsightFace](https://github.com/deepins
 
 [3] Vec2Face: Scaling Face Dataset Generation with Loosely Constrained Vectors
 
-## Reference
+## Citation
 If you find this repo is helpful, please cite our paper.
 ```
 @article{wu2024identity,
