@@ -27,6 +27,8 @@ This repository provides a neat package to efficiently train and test state-of-t
 - [Test SOTA models](#test-sota-models)
   * [Model Weights](#model-weights)
   * [Testing](#testing)
+- [Reference](#reference)
+- [Publications](#publications)
 - [Acknowledgement](#acknowledgement)
 - [License](#license)
   <!--te-->
@@ -160,16 +162,6 @@ python3 arcface_test.py \
 ### Acknowledgement
 Thanks for the valuable contribution of [InsightFace](https://github.com/deepinsight/insightface/tree/master) in face area!
 
-## TODO list
-Functions:
-- [ ] resume from training
-
-Methods:
-- [ ] Circle loss
-
-Others:
-- [x] Published papers
-- [x] references
 ## Publications
 [1] Identity Overlap Between Face Recognition Train/Test Data: Causing Optimistic Bias in Accuracy Measurement
 
@@ -188,5 +180,15 @@ If you find this repo is helpful, please cite our paper.
 }
 ```
 
+## TODO list
+Functions:
+- [ ] resume from training
+
+Methods:
+- [ ] Circle loss
+
+Others:
+- [x] Published papers
+- [x] references
 ## License
 [MIT license](./license.md)
