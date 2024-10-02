@@ -1,6 +1,6 @@
 import importlib
 from os import path, makedirs
-from losses import *
+from losses_dist import *
 import torch
 
 
@@ -18,11 +18,16 @@ RECOGNITION_HEAD = {
 
 
 def get_config(config_file):
-    temp_config_name = path.basename(config_file)
-    temp_module_name = path.splitext(temp_config_name)[0]
+    temp_module_name = []
+    for part in config_file.split("/")[::-1]:
+        cur_part = path.splitext(part)[0]
+        if cur_part != "configs":
+            temp_module_name.append(cur_part)
+        else:
+            break
     config = importlib.import_module("configs.base")
     cfg = config.config
-    config = importlib.import_module("configs.%s" % temp_module_name)
+    config = importlib.import_module("configs." + ".".join(temp_module_name[::-1]))
     job_cfg = config.config
     cfg.update(job_cfg)
     # head initialization
