@@ -1,6 +1,6 @@
 import importlib
 from os import path, makedirs
-from losses_dist import *
+from losses import *
 import torch
 
 
