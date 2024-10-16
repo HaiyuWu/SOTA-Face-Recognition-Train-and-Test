@@ -35,7 +35,6 @@ except KeyError:
 class Train:
     def __init__(self, config):
         self.config = config
-        assert self.config.head != "circleloss", "Please use 'train_with_circlelosss.py'."
 
         if local_rank == 0:
             create_path(self.config.model_path)
