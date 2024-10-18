@@ -35,7 +35,7 @@ class LMDB(Dataset):
                 self.classnum = msgpack.loads(txn.get(b"__classnum__"))
         elif self.ext == "txt":
             image_names = pd.read_csv(db_path, header=None)
-            self.samples = np.asarray(image_names).squeeze()
+            self.samples = sorted(np.asarray(image_names).squeeze(), key=lambda x: x.split("/")[-2])
             self.targets = self.get_labels()
             self.classnum = np.max(self.targets) + 1
             self.length = len(self.samples)
