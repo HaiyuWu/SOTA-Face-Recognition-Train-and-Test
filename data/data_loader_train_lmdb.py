@@ -42,7 +42,7 @@ class LMDB(Dataset):
         else:
             AssertionError(f"Only support .lmdb and .txt file, but get a .{self.ext} instead.")
 
-        self.mask = None
+        self.mask = mask
         if mask is not None:
             self.mask = np.load(mask)
 
