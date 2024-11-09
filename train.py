@@ -133,7 +133,7 @@ class Train:
         self.train_logger = TrainLogger(
             total_batch,
             self.config.frequency_log,
-            self.config.num_ims // total_batch * self.config.epochs,
+            self.dataset.get_length() // total_batch * self.config.epochs,
             self.config.epochs,
             self.writer
         )
@@ -150,7 +150,6 @@ class Train:
         loss_am = AverageMeter()
         amp = torch.cuda.amp.grad_scaler.GradScaler(growth_interval=100)
         step = 1
-
         for epoch in range(self.config.epochs):
             if isinstance(self.train_loader, DataLoader):
                 self.train_loader.sampler.set_epoch(epoch)

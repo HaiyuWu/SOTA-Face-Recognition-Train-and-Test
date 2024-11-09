@@ -16,7 +16,7 @@ from .data_augmentor import Augmenter
 
 
 class LMDB(Dataset):
-    def __init__(self, db_path, transform=None, mask=None, label_map=None, augment=False):
+    def __init__(self, db_path, transform=None, mask=None, label_map=None, augment=False, fixed_size=None, rank=0):
         self.ext = db_path.split(".")[-1]
         if self.ext == "lmdb":
             self.db_path = db_path
@@ -33,6 +33,7 @@ class LMDB(Dataset):
                 self.length = msgpack.loads(txn.get(b"__len__"))
                 self.keys = msgpack.loads(txn.get(b"__keys__"))
                 self.classnum = msgpack.loads(txn.get(b"__classnum__"))
+
         elif self.ext == "txt":
             image_names = pd.read_csv(db_path, header=None)
             self.samples = sorted(np.asarray(image_names).squeeze(), key=lambda x: x.split("/")[-2])
@@ -41,10 +42,22 @@ class LMDB(Dataset):
             self.length = len(self.samples)
         else:
             AssertionError(f"Only support .lmdb and .txt file, but get a .{self.ext} instead.")
+        self.fixed_size = fixed_size
 
         self.mask = mask
         if mask is not None:
             self.mask = np.load(mask)
+            self.length = len(self.mask)
+
+        if self.fixed_size is not None:
+            assert self.fixed_size <= self.length, f"The number of fixed images {self.fixed_size} > than total images {self.length}!"
+            if self.mask is not None and self.fixed_size > len(self.mask):
+                if rank == 0:
+                    print(f"{len(self.mask)} images will be used, as masked {len(self.mask)} image < fixed image setting {self.fixed_size}")
+            else:
+                if rank == 0:
+                    print(f"Each epoch will load {self.fixed_size} images!")
+                self.length = self.fixed_size
 
         self.label_map = None if label_map is None else np.load(label_map, allow_pickle=True).item()
         self.augmenter = None if not augment else Augmenter(0.3, 0.3, 0.3)
@@ -85,10 +98,7 @@ class LMDB(Dataset):
         return img, target
 
     def __len__(self):
-        if self.mask is None:
-            return self.length
-        else:
-            return len(self.mask)
+        return self.length
 
     def get_labels(self):
         id_dict = defaultdict(int)
@@ -108,13 +118,25 @@ class LMDBDataLoader(object):
                 transforms.Resize((112, 112)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
+                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
             ]
         )
-
-        self._dataset = LMDB(config.train_source, transform, config.mask, config.label_map, config.augment)
         rank, world_size = get_dist_info()
-        samplers = DistributedSampler(self._dataset, num_replicas=world_size, rank=rank, shuffle=True, seed=seed)
+
+        self._dataset = LMDB(config.train_source,
+                             transform,
+                             config.mask,
+                             config.label_map,
+                             config.augment,
+                             config.fixed_size,
+                             rank)
+
+        samplers = DistributedSampler(self._dataset,
+                                      num_replicas=world_size,
+                                      rank=rank,
+                                      shuffle=True,
+                                      seed=seed,
+                                      fixed_size=config.fixed_size)
 
         # use DataLoaderX for faster loading
         self.loader = DataLoaderX(
@@ -132,6 +154,9 @@ class LMDBDataLoader(object):
 
     def get_loader(self):
         return self.loader
+
+    def get_length(self):
+        return self._dataset.length
 
 
 #################################################################################################
