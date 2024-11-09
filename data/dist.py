@@ -81,46 +81,62 @@ def sync_random_seed(seed=None, device="cuda"):
 
 class DistributedSampler(_DistributedSampler):
     def __init__(
-        self,
-        dataset,
-        num_replicas=None,  # world_size
-        rank=None,  # local_rank
-        shuffle=True,
-        seed=0,
+            self,
+            dataset,
+            num_replicas=None,
+            rank=None,
+            shuffle=True,
+            seed=0,
+            fixed_size=None
     ):
-
+        # Initialize base sampler first
         super().__init__(dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle)
 
-        # In distributed sampling, different ranks should sample
-        # non-overlapped data in the dataset. Therefore, this function
-        # is used to make sure that each rank shuffles the data indices
-        # in the same order based on the same seed. Then different ranks
-        # could use different indices to select non-overlapped data from the
-        # same data list.
+        # Initialize seed for consistent shuffling
         self.seed = sync_random_seed(seed)
+
+        # Handle fixed-size sampling
+        if fixed_size is not None:
+            # Calculate samples per replica and total size
+            samples_per_replica = math.ceil(fixed_size / self.num_replicas)
+            self.total_size_original = self.total_size  # Save original total_size
+            self.total_size = samples_per_replica * self.num_replicas
+            self.num_samples = samples_per_replica
+            self.fixed_size = fixed_size
+        else:
+            self.fixed_size = None
+            self.total_size_original = self.total_size
 
     def __iter__(self):
         # deterministically shuffle based on epoch
         if self.shuffle:
             g = torch.Generator()
-            # When :attr:`shuffle=True`, this ensures all replicas
-            # use a different random ordering for each epoch.
-            # Otherwise, the next iteration of this sampler will
-            # yield the same ordering.
             g.manual_seed(self.epoch + self.seed)
             indices = torch.randperm(len(self.dataset), generator=g).tolist()
         else:
             indices = torch.arange(len(self.dataset)).tolist()
 
-        # add extra samples to make it evenly divisible
-        # in case that indices is shorter than half of total_size
-        indices = (indices * math.ceil(self.total_size / len(indices)))[
-            : self.total_size
-        ]
-        assert len(indices) == self.total_size
+        # If using fixed size sampling
+        if self.fixed_size is not None:
+            # First extend indices if needed to reach at least fixed_size
+            num_repeats = math.ceil(self.total_size / len(indices))
+            indices = indices * num_repeats
 
-        # subsample
-        indices = indices[self.rank : self.total_size : self.num_replicas]
+            # Then trim to exact total_size
+            indices = indices[:self.total_size]
+        else:
+            # Original behavior for full dataset
+            num_repeats = math.ceil(self.total_size_original / len(indices))
+            indices = (indices * num_repeats)[:self.total_size_original]
+
+        # Verify we have the correct number of indices
+        assert len(indices) == (self.total_size if self.fixed_size else self.total_size_original)
+
+        # subsample for this rank
+        indices = indices[self.rank:len(indices):self.num_replicas]
         assert len(indices) == self.num_samples
 
         return iter(indices)
+
+    def __len__(self):
+        return self.num_samples

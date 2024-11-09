@@ -34,3 +34,4 @@ config.mode = "normal"
 config.resume = None
 config.warmup_epoch = 0
 config.scheduler = False
+config.fixed_size = None
