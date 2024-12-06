@@ -67,7 +67,7 @@ def list2lmdb(
     # sigmas = np.linspace(2, 16, 8).astype(int)
     sigmas = [10]
 
-    image_size = 224
+    image_size = 112
     size = len(data_loader.dataset) * image_size * image_size * 3
 
     print(f"LMDB max size: {size}")
