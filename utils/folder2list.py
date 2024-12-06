@@ -11,7 +11,7 @@ def convert(main_folder, output):
         class_folder_path = path.join(main_folder, class_folder)
 
         for img_name in listdir(class_folder_path):
-            image_path = path.join(class_folder, img_name)
+            image_path = path.join(main_folder,class_folder, img_name)
             ret.append([image_path])
 
     np.savetxt(output, ret, delimiter=" ", fmt="%s")
