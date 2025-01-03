@@ -14,8 +14,8 @@ This repository provides a neat package to efficiently train and test state-of-t
 - AdaFace (**CVPR22**) :white_check_mark:
 - UniFace (**ICCV23**) :white_check_mark:
 ### TODO Methods
-- [ ] [TopoFR](https://github.com/modelscope/facechain/tree/main/face_module/TopoFR)
-- [ ] [Circle loss](https://github.com/TinyZeaMays/CircleLoss)
+- [ ] [TopoFR](https://github.com/modelscope/facechain/tree/main/face_module/TopoFR) (**NeurIPS24**)
+- [ ] [Circle loss](https://github.com/TinyZeaMays/CircleLoss) (**CVPR2020**)
 
 ## Citation
 If you find this repo is helpful, please cite our paper.
