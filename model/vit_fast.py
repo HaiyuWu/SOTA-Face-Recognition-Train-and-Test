@@ -38,38 +38,33 @@ class Attention(nn.Module):
                  dim: int,
                  num_heads: int = 8,
                  qkv_bias: bool = False,
-                 qk_scale: Optional[None] = None,
+                 qk_norm: bool = False,
                  attn_drop: float = 0.,
-                 proj_drop: float = 0.):
+                 proj_drop: float = 0.,
+                 norm_layer: nn.Module = nn.LayerNorm):
         super().__init__()
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
         # NOTE scale factor was wrong in my original version, can set manually to be compat with prev weights
-        self.scale = qk_scale or self.head_dim ** -0.5
-
-        self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
+        self.scale = self.head_dim ** -0.5
+        self.q_norm = norm_layer(self.head_dim) if qk_norm else nn.Identity()
+        self.k_norm = norm_layer(self.head_dim) if qk_norm else nn.Identity()
+        self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)          
         self.attn_drop = nn.Dropout(attn_drop)
         self.proj = nn.Linear(dim, dim)
         self.proj_drop = nn.Dropout(proj_drop)
 
-    def forward(self, x):
-        with torch.cuda.amp.autocast(True):
-            batch_size, num_token, embed_dim = x.shape
-            # qkv is [3,batch_size,num_heads,num_token, embed_dim//num_heads]
-            qkv = self.qkv(x).reshape(batch_size,
-                                      num_token,
-                                      3,
-                                      self.num_heads,
-                                      self.head_dim
-                                    #   torch.div(embed_dim, self.num_heads, rounding_mode='floor')
-                                      ).permute(2, 0, 3, 1, 4)
-        with torch.cuda.amp.autocast(False):
-            q, k, v = qkv[0].float(), qkv[1].float(), qkv[2].float()
-            attn = (q @ k.transpose(-2, -1)) * self.scale
-            attn = attn.softmax(dim=-1)
-            attn = self.attn_drop(attn)
-            x = (attn @ v).transpose(1, 2).reshape(batch_size, num_token, embed_dim)
-        with torch.cuda.amp.autocast(True):
+    def forward(self, x): 
+        with torch.cuda.amp.autocast(True):               
+            batch_size, num_token, embed_dim = x.shape        
+            qkv = self.qkv(x).reshape(
+                batch_size, num_token, 3, self.num_heads, self.head_dim).permute(2, 0, 3, 1, 4)
+        with torch.cuda.amp.autocast(False):        
+            q, k, v = qkv.unbind(0)
+            q, k = self.q_norm(q), self.k_norm(k)        
+            y = torch.nn.functional.scaled_dot_product_attention(q, k, v, dropout_p=self.attn_drop.p if self.training else 0.,)
+            x = y.transpose(1, 2).reshape(batch_size, num_token, embed_dim)  
+        with torch.cuda.amp.autocast(True):    
             x = self.proj(x)
             x = self.proj_drop(x)
         return x
@@ -83,7 +78,7 @@ class Block(nn.Module):
                  num_patches: int,
                  mlp_ratio: float = 4.,
                  qkv_bias: bool = False,
-                 qk_scale: Optional[None] = None,
+                 qk_norm: bool = False,
                  drop: float = 0.,
                  attn_drop: float = 0.,
                  drop_path: float = 0.,
@@ -100,7 +95,7 @@ class Block(nn.Module):
             self.norm2 = nn.LayerNorm(dim)
 
         self.attn = Attention(
-            dim, num_heads=num_heads, qkv_bias=qkv_bias, qk_scale=qk_scale, attn_drop=attn_drop, proj_drop=drop)
+            dim, num_heads=num_heads, qkv_bias=qkv_bias, qk_norm=qk_norm, attn_drop=attn_drop, proj_drop=drop,norm_layer=norm_layer)
         # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
         self.drop_path = DropPath(
             drop_path) if drop_path > 0. else nn.Identity()
@@ -109,9 +104,9 @@ class Block(nn.Module):
                        act_layer=act_layer, drop=drop)
         self.extra_gflops = (num_heads * patch_n * (dim // num_heads) * patch_n * 2) / (1000 ** 3)
 
-    def forward(self, x):
+    def forward(self, x):                        
         x = x + self.drop_path(self.attn(self.norm1(x)))
-        with torch.cuda.amp.autocast(True):
+        with torch.cuda.amp.autocast(dtype=torch.bfloat16):                                    
             x = x + self.drop_path(self.mlp(self.norm2(x)))
         return x
 
@@ -148,7 +143,7 @@ class VisionTransformer(nn.Module):
                  num_heads: int = 12,
                  mlp_ratio: float = 4.,
                  qkv_bias: bool = False,
-                 qk_scale: Optional[None] = None,
+                 qk_norm: bool = False,
                  drop_rate: float = 0.,
                  attn_drop_rate: float = 0.,
                  drop_path_rate: float = 0.,
@@ -180,7 +175,7 @@ class VisionTransformer(nn.Module):
         patch_n = (img_size // patch_size) ** 2
         self.blocks = nn.ModuleList(
             [
-                Block(dim=embed_dim, num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
+                Block(dim=embed_dim, num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, qk_norm=qk_norm,
                       drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer,
                       num_patches=num_patches, patch_n=patch_n)
                 for i in range(depth)]
