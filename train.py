@@ -7,7 +7,7 @@ from time import time
 from torch import optim, distributed
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from data import LMDBDataLoader, get_val_pair, setup_seed
+from data import LMDBDataLoader,WebDataLoader, get_val_pair, setup_seed
 from lr_scheduler import PolyScheduler
 from model import iresnet, PartialFC_V2, get_vit
 import verification
@@ -26,7 +26,7 @@ except KeyError:
     world_size = 1
     distributed.init_process_group(
         backend="nccl",
-        init_method="tcp://127.0.0.1:12584",
+        init_method="tcp://127.0.0.1:13584",
         rank=rank,
         world_size=world_size,
     )
@@ -43,18 +43,24 @@ class Train:
 
         torch.cuda.set_device(local_rank)
 
-        self.dataset = LMDBDataLoader(
+        # self.dataset = LMDBDataLoader(
+        #     config=self.config,
+        #     train=True
+        # )
+        self.dataset = WebDataLoader(
             config=self.config,
             train=True
         )
         self.train_loader = self.dataset.get_loader()
 
         class_num = self.dataset.class_num()
+        img_num = self.dataset.get_length()
 
         if self.config.model == "iresnet":
             self.model = iresnet(self.config.depth, fp16=self.config.fp16, mode=self.config.mode).to(local_rank)
         elif self.config.model == "vit":
             self.model = get_vit(self.config.depth).to(local_rank)
+            # self.model =  torch.compile(self.model)
 
         self.head = self.config.recognition_head
 
@@ -112,8 +118,8 @@ class Train:
         total_batch = self.config.batch_size * world_size
         if self.config.scheduler:
             print("PolyScheduler is used!")
-            warmup_step = self.config.num_ims // total_batch * self.config.warmup_epoch
-            total_step = self.config.num_ims // total_batch * self.config.epochs
+            warmup_step = img_num // total_batch * self.config.warmup_epoch
+            total_step = img_num // total_batch * self.config.epochs
 
             self.lr_scheduler = PolyScheduler(
                 optimizer=self.optimizer,
@@ -179,7 +185,10 @@ class Train:
                     self.optimizer.step()
                 loss_am.update(loss.item(), 1)
 
-                self.train_logger(step, epoch, loss_am, local_rank)
+                # lrs_of_this_epoch = [x['lr'] for x in self.optimizer.param_groups] 
+                lr = self.lr_scheduler.get_last_lr() 
+                # print(lr)           
+                self.train_logger(step, epoch,lr[0], loss_am, local_rank)
                 step += 1
 
             self.save_model(step)
@@ -259,10 +268,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Train a recognition model."
     )
-    parser.add_argument(
-        "--config_file", "-config", help="path of config file.", default="./configs/base.py", type=str
-    )
+    parser.add_argument("--config_file", "-config", help="path of config file.", default="./configs/base.py", type=str)
+    parser.add_argument("--device", default='0', type=str, help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     args = parser.parse_args()
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.device
     config = get_config(args.config_file)
     setup_seed(seed=42, cuda_deterministic=False)
     train = Train(config)

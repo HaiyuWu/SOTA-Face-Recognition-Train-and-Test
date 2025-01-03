@@ -62,7 +62,7 @@ def list2lmdb(
     lmdb_path = path.join(dest, name)
     isdir = path.isdir(lmdb_path)
 
-    print(f"Generate LMDB to {lmdb_path}")
+    print(f"Generate LMDB to {lmdb_path}") 
 
     # sigmas = np.linspace(2, 16, 8).astype(int)
     sigmas = [10]
@@ -70,12 +70,14 @@ def list2lmdb(
     image_size = 224
     size = len(data_loader.dataset) * image_size * image_size * 3
 
+    # map_mem_size = write_frequency * image_size * image_size * 3
+
     print(f"LMDB max size: {size}")
 
     db = lmdb.open(
         lmdb_path,
         subdir=isdir,
-        map_size=size * 2,
+        map_size=size * 2,       
         readonly=False,
         meminit=False,
         map_async=True,
