@@ -154,7 +154,7 @@ class DataLoaderX(DataLoader):
         self.preload()
         return batch
 if __name__ == '__main__':
-    # data_json = "/data/hdd/share/dataset/DMS_train/datasets/faceid/web4m/datasets_webdataset.json"
+    # data_json = "/datasets/faceid/web4m/datasets_webdataset.json"
     # dataset_info = open(path.join(data_json,dataset_info.txt)).readlines()
     # ids = dataset_info[0].split(" ")[0].split(":")[1]    
     # transform = transforms.Compose(
