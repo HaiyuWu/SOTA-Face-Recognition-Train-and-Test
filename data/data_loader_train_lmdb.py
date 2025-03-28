@@ -118,8 +118,8 @@ class LMDBDataLoader(object):
                 transforms.Resize((112, 112)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-            ]
+                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
+            ] + ([transforms.RandomErasing()] if config.rand_erase else [])
         )
         rank, world_size = get_dist_info()
 

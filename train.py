@@ -43,14 +43,15 @@ class Train:
 
         torch.cuda.set_device(local_rank)
 
-        # self.dataset = LMDBDataLoader(
-        #     config=self.config,
-        #     train=True
-        # )
-        self.dataset = WebDataLoader(
+        self.dataset = LMDBDataLoader(
             config=self.config,
             train=True
         )
+
+        # self.dataset = WebDataLoader(
+        #     config=self.config,
+        #     train=True
+        # )
         self.train_loader = self.dataset.get_loader()
 
         class_num = self.dataset.class_num()
@@ -185,10 +186,12 @@ class Train:
                     self.optimizer.step()
                 loss_am.update(loss.item(), 1)
 
-                # lrs_of_this_epoch = [x['lr'] for x in self.optimizer.param_groups] 
-                lr = self.lr_scheduler.get_last_lr() 
-                # print(lr)           
-                self.train_logger(step, epoch,lr[0], loss_am, local_rank)
+                # lrs_of_this_epoch = [x['lr'] for x in self.optimizer.param_groups]
+                # lr = self.lr_scheduler.get_last_lr()
+                # print(lr)
+                # self.train_logger(step, epoch,lr[0], loss_am, local_rank)
+                self.train_logger(step, epoch, loss_am, local_rank)
+
                 step += 1
 
             self.save_model(step)

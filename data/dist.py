@@ -83,11 +83,11 @@ class DistributedSampler(_DistributedSampler):
     def __init__(
             self,
             dataset,
-            num_replicas=None,
-            rank=None,
+            num_replicas=None,  # world_size
+            rank=None,  # local_rank
             shuffle=True,
             seed=0,
-            fixed_size=None
+            fixed_size=None  # New parameter
     ):
         # Initialize base sampler first
         super().__init__(dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle)

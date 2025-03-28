@@ -17,7 +17,6 @@ class TrainLogger(object):
     def __call__(self,
                  step,
                  epoch,
-                 lr,
                  loss,
                  local_rank
                  ):
@@ -36,8 +35,8 @@ class TrainLogger(object):
                 if self.writer is not None:
                     self.writer.add_scalar('time_for_end', time_for_end, step)
                     self.writer.add_scalar('loss', loss.avg, step)
-                msg = "Epoch: [%d-%d]   lr %.6f  Loss %.4f   Global Step: [%d-%d]  Speed %.2f samples/sec  Required: %1.f hours"\
-                      % (epoch+1, self.total_epochs, lr, loss.avg, step, self.total_steps, speed_total, time_for_end)
+                msg = "Epoch: [%d-%d]  Loss %.4f   Global Step: [%d-%d]  Speed %.2f samples/sec  Required: %1.f hours"\
+                      % (epoch+1, self.total_epochs, loss.avg, step, self.total_steps, speed_total, time_for_end)
                 logging.info(msg)
                 loss.reset()
                 self.tic = time.time()
