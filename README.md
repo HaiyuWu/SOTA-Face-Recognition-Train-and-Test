@@ -94,8 +94,8 @@ using [file_path_extractor.py](./file_path_extractor.py) to gather the image pat
 Then run [imagelist2lmdb.py](https://github.com/HaiyuWu/SOTA-FR-train-and-test/blob/main/utils/imagelist2lmdb.py) to finish the training set preparation.
 ```
 python3 utils/imagelist2lmdb.py \
---image_list file/of/extracted/image/paths
---destination ./datasets
+--image_list file/of/extracted/image/paths \
+--destination ./datasets \
 --file_name dataset/name
 ```
 
@@ -109,8 +109,8 @@ LFW, CFP-FP, CALFW, CPLFW, AgeDB-30 can be downloaded [here](https://drive.googl
 Extract the compressed file then you can simply run [prepare_test_images.py](https://github.com/HaiyuWu/SOTA-FR-train-and-test/blob/main/utils/prepare_test_images.py) to get datasets ready to test
 ```
 python3 utils/prepare_test_images.py \
---xz_folder folder/contains/xz/files
---destination ./test_set_package_5
+--xz_folder folder/contains/xz/files \
+--destination ./test_set_package_5 \
 --datasets lfw cfp_fp agedb_30 calfw cplfw
 ```
 
