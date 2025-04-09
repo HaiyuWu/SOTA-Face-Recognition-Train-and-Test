@@ -113,6 +113,7 @@ python3 utils/prepare_test_images.py \
 --destination ./test_set_package_5 \
 --datasets lfw cfp_fp agedb_30 calfw cplfw
 ```
+If you use different destination, please change the corresponding configuration in [configs/base.py](https://github.com/HaiyuWu/SOTA-Face-Recognition-Train-and-Test/blob/main/configs/base.py#L24).
 
 ## Train your own model
 After finishing the training and testing sets preparation, you train your own model by:
