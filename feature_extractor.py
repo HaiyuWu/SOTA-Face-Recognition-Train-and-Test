@@ -21,7 +21,7 @@ class Extractor(object):
 
     def create_model(self, args):
         if args.model == "iresnet":
-            model = iresnet(args.depth, fp16=True)
+            model = iresnet(args.depth, fp16=True, mode=args.mode)
         elif args.model == "vit":
             model = get_vit(args.depth)
         model.load_state_dict(torch.load(args.model_path))
