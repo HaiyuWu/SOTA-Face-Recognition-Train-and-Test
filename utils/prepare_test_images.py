@@ -5,6 +5,7 @@ import numpy as np
 import pickle
 from os import path, makedirs
 import cv2
+import skimage.io as io
 import matplotlib.pyplot as plt
 
 
