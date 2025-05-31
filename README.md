@@ -49,8 +49,8 @@ If you find this repo is helpful, please cite our paper.
 ## Environment
 I suggest you to use Anaconda to better control the environments
 ```
-conda create -n new_fr_env python==3.10 -y
-conda activate new_fr_env
+conda create -n fr_training python==3.10 -y
+conda activate fr_training
 ```
 Then clone the package and use pip to install the dependencies
 ```

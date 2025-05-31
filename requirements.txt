@@ -1,3 +1,4 @@
+torch
 easydict
 lmdb
 matplotlib
