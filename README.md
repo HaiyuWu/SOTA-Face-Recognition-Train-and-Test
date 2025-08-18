@@ -60,14 +60,15 @@ pip install -r requirements.txt
 ```
 
 ## Dataset preparation
-### Hadrian and Eclipse
+### Hadrian, Eclipse, and Twins-IND
 Hadrian and Eclipse are face recognition test sets oriented around facial hairstyles and face exposure levels, respectively. 
 You can download both datasets via [GDrive](https://drive.google.com/file/d/1Q23Ze35jzzyR8k9h532gXdEpUJLC0SCR/view?usp=sharing). 
 To get the password, you need to fill this [form](https://forms.gle/6Zuw9c6sdkU27hxN6), then you can follow [Test sets](#test-sets) to prepare the dataset.
-If you find Hadrian and Eclipse help any of your projects, please cite the following reference:
+Twins-IND is the first twin verification test set follows the 10-fold cross-validation protocal. You need to sign the [agreement](https://cvrl.nd.edu/projects/data/#nd-twins-face-recognition-test-set) to download the dataset.
+If you find these datasets help any of your projects, please cite the following reference:
 ```
 @article{GoldilocksFRTestSet2024,
-  title={What is a Goldilocks Face Verification Test Set?},
+  title={Goldilocks Test Sets for Face Verification},
   author={Wu, Haiyu and Tian, Sicong and Bhatta, Aman and Gutierrez, Jacob and Bezold, Grace and Argueta, Genesis and Ricanek Jr., Karl and King, Michael C. and Bowyer, Kevin W.},
   year={2024}
 }
