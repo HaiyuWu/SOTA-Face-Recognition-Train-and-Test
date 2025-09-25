@@ -31,7 +31,7 @@ If you find this repo is helpful, please cite our paper.
 ## Table of contents
 <!--ts-->
 - [Dataset preparation](#dataset-preparation)
-  * [Hadrian and Eclipse](#hadrian-and-eclipse)
+  * [Hadrian, Eclipse, and Twins-IND](#hadrian-eclipse-and-twins-ind)
   * [Training sets](#training-sets)
   * [Test sets](#test-sets)
 - [Train your own model](#train-your-own-model)
