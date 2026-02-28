@@ -15,22 +15,22 @@ Also, the accuracies are calculated with the merged features of the original and
 | SphereFace-R100 (m=1.7)    | MS1MV2    | 99.83 | 98.40 | 92.88 | 98.20 | 96.07 | 93.27 | 83.48 | 67.67 | [Gdrive](https://drive.google.com/file/d/1vCMSDF65bslXcU0kxCadBrdW48v-7oPt/view?usp=drive_link) |
 | UniFace-R100 (m=0.5)       | MS1MV2    | 99.78 | 98.49 | 93.28 | 98.02 | 96.10 | 91.63 | 82.18 | 65.75 | [Gdrive](https://drive.google.com/file/d/1TgO7RgXPoMoM6ESIj7h09WYhotou47vD/view?usp=drive_link) |
 
-| Model                         |  Dataset  | LFW | CFP-FP | CPLFW | AgeDB-30 | CALFW | Hadrian | Eclipse | Twins |
-|:------------------------------|:---------:|:------:|:------:|:-----:|:--------:|:-----:|:-------:|:-------:|:------:|
-| AdaFace-R100 (m=0.4)       | WebFace4M | 99.78 | 99.14 | 94.32 | 97.63 | 96.13 | 91.07 | 82.80 | 72.47 |
-| ArcFace-R100 (m=0.5)       | WebFace4M | 99.77 | 99.21 | 94.25 | 97.85 | 96.12 | 91.78 | 83.20 | 71.73 |
-| ArcFace-R100 (combined)    | WebFace4M | 99.77 | 99.00 | 94.40 | 97.90 | 96.13 | 91.90 | 83.17 | 71.48 |
-| CurricularFace-R100 (m=0.5) | WebFace4M | 99.82 | 98.97 | 94.30 | 97.93 | 96.02 | 90.40 | 82.03 | 70.43 |
-| MagFace-R100               | WebFace4M | 99.80 | 99.23 | 94.25 | 97.88 | 95.97 | 90.92 | 82.47 | 71.08 |
-| UniFace-R100 (m=0.5)       | WebFace4M | 99.77 | 99.17 | 94.47 | 97.60 | 96.02 | 90.65 | 82.20 | 71.82 |
+| Model                         |  Dataset  | LFW | CFP-FP | CPLFW | AgeDB-30 | CALFW | Hadrian | Eclipse | Twins | Weights |
+|:------------------------------|:---------:|:------:|:------:|:-----:|:--------:|:-----:|:-------:|:-------:|:------:|:-----------------------------------------------------------------------------------------------:|
+| AdaFace-R100 (m=0.4)       | WebFace4M | 99.78 | 99.14 | 94.32 | 97.63 | 96.13 | 91.07 | 82.80 | 72.47 | [Gdrive](https://drive.google.com/file/d/19uHspLbfkMv0_HfYC3Ege4HQCIsxo8Vr/view?usp=drive_link) |
+| ArcFace-R100 (m=0.5)       | WebFace4M | 99.77 | 99.21 | 94.25 | 97.85 | 96.12 | 91.78 | 83.20 | 71.73 | [Gdrive](https://drive.google.com/file/d/1yzm9-VFyVqm9HkQRXDwlLutF0G4tq86x/view?usp=drive_link) |
+| ArcFace-R100 (combined)    | WebFace4M | 99.77 | 99.00 | 94.40 | 97.90 | 96.13 | 91.90 | 83.17 | 71.48 | [Gdrive](https://drive.google.com/file/d/15_i01irmE-ruB00qgiU6nOpyPFwKulNz/view?usp=drive_link) |
+| CurricularFace-R100 (m=0.5) | WebFace4M | 99.82 | 98.97 | 94.30 | 97.93 | 96.02 | 90.40 | 82.03 | 70.43 | [Gdrive](https://drive.google.com/file/d/1WUOpOReeaUBmmqfQGXAvl3WMUMfoY4MZ/view?usp=drive_link) |
+| MagFace-R100               | WebFace4M | 99.80 | 99.23 | 94.25 | 97.88 | 95.97 | 90.92 | 82.47 | 71.08 | [Gdrive](https://drive.google.com/file/d/1rVBzy01b_ZWTUJ97ainjS9tWEc2u26Or/view?usp=drive_link) |
+| UniFace-R100 (m=0.5)       | WebFace4M | 99.77 | 99.17 | 94.47 | 97.60 | 96.02 | 90.65 | 82.20 | 71.82 | [Gdrive](https://drive.google.com/file/d/1cfJREzrOEqVUAzD5ptH_htIEZiYWdr9H/view?usp=drive_link) |
 
-| Model                         |  Dataset  | LFW | CFP-FP | CPLFW | AgeDB-30 | CALFW | Hadrian | Eclipse | Twins |
-|:------------------------------|:---------:|:------:|:------:|:-----:|:--------:|:-----:|:-------:|:-------:|:------:|
-| AdaFace-R100 (m=0.4)       | Glint360k | 99.78 | 99.21 | 94.98 | 98.32 | 96.07 | 95.63 | 83.88 | 75.88 |
-| ArcFace-R100 (m=0.5)       | Glint360k | 99.82 | 99.07 | 94.68 | 98.30 | 96.15 | 95.68 | 84.12 | 84.67 |
-| CurricularFace-R100 (m=0.5) | Glint360k | 99.78 | 99.11 | 94.80 | 98.40 | 96.17 | 94.63 | 83.53 | 74.23 |
-| MagFace-R100               | Glint360k | 99.82 | 99.14 | 94.47 | 98.20 | 96.15 | 95.22 | 83.83 | 71.98 |
-| UniFace-R100 (m=0.5)       | Glint360k | 99.73 | 99.09 | 94.58 | 98.22 | 96.18 | 93.53 | 83.18 | 71.52 |
+| Model                         |  Dataset  | LFW | CFP-FP | CPLFW | AgeDB-30 | CALFW | Hadrian | Eclipse | Twins | Weights |
+|:------------------------------|:---------:|:------:|:------:|:-----:|:--------:|:-----:|:-------:|:-------:|:------:|:-----------------------------------------------------------------------------------------------:|
+| AdaFace-R100 (m=0.4)       | Glint360k | 99.78 | 99.21 | 94.98 | 98.32 | 96.07 | 95.63 | 83.88 | 75.88 | [Gdrive](https://drive.google.com/file/d/1YRqrXGOao5F3mVQXZ90dt-WLEICNqbYY/view?usp=drive_link) |
+| ArcFace-R100 (m=0.5)       | Glint360k | 99.82 | 99.07 | 94.68 | 98.30 | 96.15 | 95.68 | 84.12 | 84.67 | [Gdrive](https://drive.google.com/file/d/1JsRePpJtVjzgv0N-JSUpyt7ikzsNEaS7/view?usp=drive_link) |
+| CurricularFace-R100 (m=0.5) | Glint360k | 99.78 | 99.11 | 94.80 | 98.40 | 96.17 | 94.63 | 83.53 | 74.23 | [Gdrive](https://drive.google.com/file/d/12pNosc10tOGl-OCH65OH3_rhQ6Le1tMS/view?usp=drive_link) |
+| MagFace-R100               | Glint360k | 99.82 | 99.14 | 94.47 | 98.20 | 96.15 | 95.22 | 83.83 | 71.98 | [Gdrive](https://drive.google.com/file/d/1xg7CBPhatTE1BwmozGIOhI1bfGwWiyUP/view?usp=drive_link) |
+| UniFace-R100 (m=0.5)       | Glint360k | 99.73 | 99.09 | 94.58 | 98.22 | 96.18 | 93.53 | 83.18 | 71.52 | [Gdrive](https://drive.google.com/file/d/1r_LA7F0rmga_ip1MDtoue5lZYBFbtg1-/view?usp=drive_link) |
 
 
 # References
