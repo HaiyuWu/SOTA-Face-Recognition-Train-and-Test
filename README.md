@@ -129,7 +129,7 @@ If you want to train the model align with the training in the original GitHub re
 ## Test your own model
 For CosFace, SphereFace, ArcFace, CurricularFace, UniFace, adding ```--add_flip``` option to test. For AdaFace, adding ```--add_norm``` option to test.
 ```
-python3 test.py \
+torchrun --nproc_per_node=4 test.py \
 --model_path path/of/the/weights \
 --model iresnet \
 --depth 100 \
