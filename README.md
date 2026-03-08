@@ -31,7 +31,7 @@ If you find this repo is helpful, please cite our paper.
 ## Table of contents
 <!--ts-->
 - [Dataset preparation](#dataset-preparation)
-  * [Hadrian, Eclipse, and Twins-IND](#hadrian-eclipse-and-twins-ind)
+  * [Hadrian, Eclipse, and ND-Twins](#hadrian-eclipse-and-nd-twins)
   * [Training sets](#training-sets)
   * [Test sets](#test-sets)
 - [Train your own model](#train-your-own-model)
@@ -60,11 +60,11 @@ pip install -r requirements.txt
 ```
 
 ## Dataset preparation
-### Hadrian, Eclipse, and Twins-IND
+### Hadrian, Eclipse, and ND-twins
 Hadrian and Eclipse are face recognition test sets oriented around facial hairstyles and face exposure levels, respectively. 
 You can download both datasets via [GDrive](https://drive.google.com/file/d/1Q23Ze35jzzyR8k9h532gXdEpUJLC0SCR/view?usp=sharing). 
 To get the password, you need to fill this [form](https://forms.gle/6Zuw9c6sdkU27hxN6), then you can follow [Test sets](#test-sets) to prepare the dataset.
-Twins-IND is the first twin verification test set follows the 10-fold cross-validation protocal. You need to sign the [agreement](https://cvrl.nd.edu/projects/data/#nd-twins-face-recognition-test-set) to download the dataset.
+ND-Twins is the first twin verification test set follows the 10-fold cross-validation protocal. You need to sign the [agreement](https://cvrl.nd.edu/projects/data/#nd-twins-face-recognition-test-set) to download the dataset.
 If you find these datasets help any of your projects, please cite the following reference:
 ```
 @article{GoldilocksFRTestSet2024,
