@@ -188,4 +188,4 @@ Functions:
 - [ ] resume from training
 
 ## License
-[MIT license](./license.md)
+[MIT license](./license.md) for the code and model weights
